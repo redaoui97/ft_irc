@@ -1,0 +1,5 @@
+TODO:
+
+Documentation & information gathering: (~3 days)
+    -Read and experiment with beej socket programming (70pages:~2days)
+    -Read and understand and experiment with the IBM server implementation
