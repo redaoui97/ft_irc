@@ -18,6 +18,12 @@ class Server {
 		Server();
 		~Server();
 
-		bool	InitializeServer(int port, int &ServerFd);
+		bool	InitializeServer(int port);
+		void	StartListening();
+		void	ClientConnections(int ClientFd);
+	
+	private:
+		int port;
+		int ServerFd;
 
 };

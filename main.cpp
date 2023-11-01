@@ -4,11 +4,6 @@
 int main(int ac, char **av)
 {
 	Server server;
-	struct sockaddr_in ClientAddr;
-	socklen_t ClientAddrlen;
-	char buffer[500];
-	int ServerFd;
-	int ClientFd;
 	int port;
 
 	if(ac != 3)
@@ -20,16 +15,10 @@ int main(int ac, char **av)
 		return 1;
 	}
 
-	if(!server.InitializeServer(port, ServerFd)) {
+	if(!server.InitializeServer(port)) {
 		std::cout << "Failed to initialize the server.\n";
 		return 1;
 	}
-
-	ClientAddrlen = sizeof(ClientAddr);
-	ClientFd = accept(ServerFd, (sockaddr*)&ClientAddr, &ClientAddrlen);
-	bzero(buffer, 500);
-	recv(ClientFd, buffer, 500, 0);
-	std::cout << "buffer :" << buffer << "\n";
 
 	return 0;
 }
