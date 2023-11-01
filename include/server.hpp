@@ -18,4 +18,6 @@ class Server {
 		Server();
 		~Server();
 
+		bool	InitializeServer(int port, int &ServerFd);
+
 };
