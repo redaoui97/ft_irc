@@ -9,7 +9,6 @@ Table of Contents
         For MacOS only
         Test Example
     Bonus Part
-    Submission and Peer-evaluation
 
 Introduction
 
@@ -78,12 +77,11 @@ Test Example
 
 Verify every possible error and issue, including receiving partial data and low bandwidth. To ensure that your server correctly processes everything, use a simple test with nc as follows:
 
-sh-----------------------
-                        |
-$> nc 127.0.0.1 6667    |
-com^Dman^Dd             |
-$>                      |
--------------------------
+sh
+                        
+$> nc 127.0.0.1 6667    
+com^Dman^Dd             
+$>                      
 
 Use Ctrl+D to send the command in several parts: 'com', then 'man', then 'd\n'. You need to aggregate received packets to rebuild the command.
 
