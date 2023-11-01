@@ -37,13 +37,11 @@ int main(int ac, char **av)
 		return 1;
 	}
 
-	while(1){
 	ClientAddrlen = sizeof(ClientAddr);
 	ClientFd = accept(ServerFd, (sockaddr*)&ClientAddr, &ClientAddrlen);
 	bzero(buffer, 500);
 	recv(ClientFd, buffer, 500, 0);
 	std::cout << "buffer :" << buffer << "\n";
-	}
 
 	return 1;
 }
