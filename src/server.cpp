@@ -49,21 +49,12 @@ bool	Server::initializeServer(int port) {
 
 void	Server::startListening() {
 
-//	struct sockaddr_in ClientAddr;
 	std::vector<struct pollfd> Fds;
-//	socklen_t ClientAddrlen;
-//	pollfd	ServerSocket;
-//	int	ClientFd; 
 	int maxClient;
 	int filesnum;
 
-
-//	ClientAddrlen = sizeof(ClientAddr);
-//	ServerSocket.fd = serverFd;
-//	ServerSocket.events = POLLIN;
-//	ServerSocket.revents = 0;
-//	clientSockets.push_back(ServerSocket);
 	maxClient = 100;
+	Fds.reserve(maxClient);
 	Fds.push_back(serverSocket);
 	while(1) {
 
@@ -77,21 +68,31 @@ void	Server::startListening() {
 		for (int i = 0; i < Fds.size(); ++i) {
 			if (Fds[i].revents & POLLIN) {
 				if (Fds[i].fd == serverFd) {
+					Server::newClientConnections(Fds);
+				} else {
 
 				}
 			}
 		}
-
-
-		Client	client(ClientFd);
-		client.clientConnections();
 	}
-	ClientFd = accept(serverFd, (sockaddr*)&ClientAddr, &ClientAddrlen);
-		if (ClientFd == -1) {
-			std::cout << "Error accepting client connection" << std::endl;
-			continue;
-		}
+}
 
+void	Server::newClientConnections(std::vector<struct pollfd>& Fds) {
+	
+	struct sockaddr_in clientAddr;
+	socklen_t clientAddrlen;
+	int clientFd;
+
+	clientAddrlen = sizeof(clientAddr);
+	clientFd = accept(serverFd, (sockaddr*)&clientAddr, &clientAddrlen);
+	if (clientFd == -1) {
+		std::cout << "Error accepting client connection" << std::endl;
+	} else {
+		struct pollfd clientSocket;
+		clientSocket.fd = clientFd;
+		clientSocket.events = POLLIN;
+		Fds.push_back(clientSocket);
+	}
 }
 
 Server::~Server() {

@@ -1,6 +1,6 @@
 #include"../include/client.hpp"
 
-void	Client::clientConnections() {
+void	Client::clientData() {
 
 	char buffer[1024];
 	ssize_t	bytes;

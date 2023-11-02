@@ -17,10 +17,9 @@ class Client {
 	public:
 		Client(int clientFd);
 		~Client();
-		void	clientConnections();
+
+		void	clientData();
 
 	private:
 		int	clientFd;
-		socklen_t	clientAddrlen;
-		struct sockaddr_in	clientAddr;
 };

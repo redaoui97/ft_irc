@@ -23,6 +23,7 @@ class Server {
 		bool	initializeServer(int port);
 		void	startListening();
 //		std::vector<pollfd> clientSockets;
+		void	newClientConnections(std::vector<struct pollfd>&	Fds);
 	
 	private:
 		int port;
