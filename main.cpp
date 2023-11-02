@@ -19,6 +19,5 @@ int main(int ac, char **av)
 		std::cout << "Failed to initialize the server.\n";
 		return 1;
 	}
-
 	return 0;
 }

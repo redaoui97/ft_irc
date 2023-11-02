@@ -1,4 +1,4 @@
-#pragma 
+#pragma once
 
 #include<iostream>
 #include<unistd.h>
@@ -12,17 +12,15 @@
 #include <arpa/inet.h>
 #include<fcntl.h>
 
+class Client {
 
-class Server {
 	public:
-		Server();
-		~Server();
+		Client(int ClientFd);
+		~Client();
+		void	ClientConnections();
 
-		bool	InitializeServer(int port);
-		void	StartListening();
-	
 	private:
-		int port;
-		int ServerFd;
-
+		int	ClientFd;
+		socklen_t	ClientAddrlen;
+		struct sockaddr_in	ClientAddr;
 };

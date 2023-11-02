@@ -1,4 +1,5 @@
 #include"../include/server.hpp"
+#include"../include/client.hpp"
 #include <iterator>
 #include <ostream>
 #include <sys/socket.h>
@@ -55,27 +56,8 @@ void	Server::StartListening() {
 			std::cout << "Error accepting client connection" << std::endl;
 			continue;
 		}
-        ClientConnections(ClientFd);
-	}
-
-}
-
-void	Server::ClientConnections(int ClientFd) {
-
-	char buffer[1024];
-	ssize_t	bytes;
-
-	bytes = recv(ClientFd, buffer, sizeof(buffer), 0);
-	if (bytes <= 0) {
-		if (bytes == 0)
-			std::cout << "Client closed connection" << std::endl;
-		else 
-			std::cout << "Error occurred during Client connection" << std::endl;
-		close(ClientFd);
-	}
-	else {
-		// here i will handle the messeges and extraxt commands
-
+		Client	client(ClientFd);
+		client.ClientConnections();
 	}
 
 }
