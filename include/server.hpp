@@ -11,6 +11,8 @@
 #include<sys/socket.h>
 #include <arpa/inet.h>
 #include<fcntl.h>
+#include<vector>
+#include<poll.h>
 
 
 class Server {
@@ -18,11 +20,13 @@ class Server {
 		Server();
 		~Server();
 
-		bool	InitializeServer(int port);
-		void	StartListening();
+		bool	initializeServer(int port);
+		void	startListening();
+//		std::vector<pollfd> clientSockets;
 	
 	private:
 		int port;
-		int ServerFd;
+		int serverFd;
+		struct pollfd serverSocket;
 
 };

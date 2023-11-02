@@ -15,12 +15,12 @@
 class Client {
 
 	public:
-		Client(int ClientFd);
+		Client(int clientFd);
 		~Client();
-		void	ClientConnections();
+		void	clientConnections();
 
 	private:
-		int	ClientFd;
-		socklen_t	ClientAddrlen;
-		struct sockaddr_in	ClientAddr;
+		int	clientFd;
+		socklen_t	clientAddrlen;
+		struct sockaddr_in	clientAddr;
 };

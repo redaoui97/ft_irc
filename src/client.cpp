@@ -1,17 +1,17 @@
 #include"../include/client.hpp"
 
-void	Client::ClientConnections() {
+void	Client::clientConnections() {
 
 	char buffer[1024];
 	ssize_t	bytes;
 
-	bytes = recv(ClientFd, buffer, sizeof(buffer), 0);
+	bytes = recv(clientFd, buffer, sizeof(buffer), 0);
 	if (bytes <= 0) {
 		if (bytes == 0)
 			std::cout << "Client closed connection" << std::endl;
 		else 
 			std::cout << "Error occurred during Client connection" << std::endl;
-		close(ClientFd);
+		close(clientFd);
 		return ;
 	}
 	else {
@@ -19,4 +19,9 @@ void	Client::ClientConnections() {
 
 	}
 
+}
+
+Client::~Client() {
+	std::cout << "Client destructor" << std::endl;
+	close(clientFd);
 }

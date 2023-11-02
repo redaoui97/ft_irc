@@ -15,7 +15,7 @@ int main(int ac, char **av)
 		return 1;
 	}
 
-	if(!server.InitializeServer(port)) {
+	if(!server.initializeServer(port)) {
 		std::cout << "Failed to initialize the server.\n";
 		return 1;
 	}
