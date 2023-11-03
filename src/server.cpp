@@ -74,7 +74,13 @@ void	Server::startListening() {
 				if (i == serverSocket.fd) {
 					newClientConnections(clientSockets);
 				} else {
-					clientData(i);
+					if (clientSockets[i].fd > 0) {
+						clientData(i);
+					} else {
+						std::cout << "invalid client socket";
+						clientSockets.erase(clientSockets.begin() + i);
+						--i;
+					}
                 }
 			}
 		}
@@ -86,12 +92,19 @@ void	Server::clientData(int clientFd) const {
 	char buffer[1024];
 	ssize_t	bytes;
 
+	if (clientFd < 0) {
+		std::cout << "Error bad client file discriptor" << std::endl;
+		return ;
+	}
 	bytes = recv(clientFd, buffer, sizeof(buffer), 0);
 	if (bytes <= 0) {
 		if (bytes == 0) {
 			std::cout << "Client closed connection" << std::endl;
-		} else { 
-			std::cout << "Error occurred during Client connection" << std::endl;
+		} else if (errno == EBADF) {
+            std::cout << "Error: Bad file descriptor" << std::endl;
+        } else { 
+			perror("Error occurred during Client connection");
+		//	std::cout << "Error occurred during Client connection" << std::endl;
 		}
 		close(clientFd);
 		return ;

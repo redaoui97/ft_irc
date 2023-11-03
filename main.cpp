@@ -5,7 +5,7 @@ int main(int ac, char **av) {
 	Server server(100);
 	int port;
 
-	if(ac != 3)
+	if(ac != 2)
 		return 1;
 
 	port = std::stoi(av[1]);
@@ -18,5 +18,6 @@ int main(int ac, char **av) {
 		std::cout << "Failed to initialize the server.\n";
 		return 1;
 	}
+	server.startListening();
 	return 0;
 }
