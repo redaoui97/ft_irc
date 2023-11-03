@@ -18,7 +18,7 @@ class Client {
 		Client(int clientFd);
 		~Client();
 
-		void	clientData();
+		int getClientFd() const;
 
 	private:
 		int	clientFd;

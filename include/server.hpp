@@ -13,21 +13,25 @@
 #include<fcntl.h>
 #include<vector>
 #include<poll.h>
+#include"client.hpp"
+#include <map>
 
 
 class Server {
 	public:
-		Server();
+		Server(int maxClients);
 		~Server();
 
 		bool	initializeServer(int port);
 		void	startListening();
-//		std::vector<pollfd> clientSockets;
-		void	newClientConnections(std::vector<struct pollfd>&	Fds);
+		void	clientData(int clientFd) const;
 	
 	private:
 		int port;
 		int serverFd;
 		struct pollfd serverSocket;
+		std::vector<pollfd> clientSockets;
+		int maxClients;
+		void	newClientConnections(std::vector<struct pollfd>&	clientSockets);
 
 };

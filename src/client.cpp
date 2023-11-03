@@ -1,27 +1,17 @@
 #include"../include/client.hpp"
 
-void	Client::clientData() {
+Client::Client(int clientFd) {
 
-	char buffer[1024];
-	ssize_t	bytes;
+	std::cout << "Client constructor" << std::endl;
+	this->clientFd = clientFd;
+}
 
-	bytes = recv(clientFd, buffer, sizeof(buffer), 0);
-	if (bytes <= 0) {
-		if (bytes == 0)
-			std::cout << "Client closed connection" << std::endl;
-		else 
-			std::cout << "Error occurred during Client connection" << std::endl;
-		close(clientFd);
-		return ;
-	}
-	else {
-		// here i will handle the messeges and extraxt commands
-
-	}
-
+int Client::getClientFd() const {
+	return clientFd;
 }
 
 Client::~Client() {
+
 	std::cout << "Client destructor" << std::endl;
 	close(clientFd);
 }

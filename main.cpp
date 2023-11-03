@@ -3,7 +3,7 @@
 
 int main(int ac, char **av)
 {
-	Server server;
+	Server server(100);
 	int port;
 
 	if(ac != 3)

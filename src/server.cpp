@@ -1,15 +1,17 @@
 #include"../include/server.hpp"
 #include"../include/client.hpp"
+#include <fcntl.h>
 #include <iterator>
 #include <ostream>
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <vector>
 
-Server::Server() {
+Server::Server(int maxClients) {
 
-	serverFd = -1;
-	port = -1;
+	this->serverFd = -1;
+	this->port = -1;
+	this->maxClients = maxClients;
 	std::cout << "Server constructor" << std::endl;
 }
 	
@@ -21,6 +23,11 @@ bool	Server::initializeServer(int port) {
 	serverFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (serverFd == -1) {
 		std::cout << "Error at Creation of server socket" << std::endl;
+		return false;
+	}
+
+	if (fcntl(serverFd, F_SETFL, O_NONBLOCK) == -1) {
+		std::cout << "Error Mode NonBlocking Server" << std::endl;
 		return false;
 	}
 
@@ -49,49 +56,71 @@ bool	Server::initializeServer(int port) {
 
 void	Server::startListening() {
 
-	std::vector<struct pollfd> Fds;
-	int maxClient;
 	int filesnum;
 
-	maxClient = 100;
-	Fds.reserve(maxClient);
-	Fds.push_back(serverSocket);
+	clientSockets.reserve(maxClients);
+	clientSockets.push_back(serverSocket);
 	while(1) {
 
-		filesnum = poll(Fds.data(), Fds.size(), -1);
+		filesnum = poll(clientSockets.data(), clientSockets.size(), -1);
 		if(filesnum == -1) {
 
 			std::cout << "Error polling the data from clients" << std::endl;
 			break;
 		}
-		
-		for (int i = 0; i < Fds.size(); ++i) {
-			if (Fds[i].revents & POLLIN) {
-				if (Fds[i].fd == serverFd) {
-					Server::newClientConnections(Fds);
-				} else {
+		for (int i = 0; i < clientSockets.size(); ++i) {
 
-				}
+			if (clientSockets[i].revents & POLLIN) {
+				if (i == serverSocket.fd) {
+					newClientConnections(clientSockets);
+				} else {
+					clientData(i);
+                }
 			}
-		}
 	}
 }
 
-void	Server::newClientConnections(std::vector<struct pollfd>& Fds) {
+void	Server::clientData(int clientFd) {
+
+	char buffer[1024];
+	ssize_t	bytes;
+
+	bytes = recv(clientFd, buffer, sizeof(buffer), 0);
+	if (bytes <= 0) {
+		if (bytes == 0)
+			std::cout << "Client closed connection" << std::endl;
+		else 
+			std::cout << "Error occurred during Client connection" << std::endl;
+		close(clientFd);
+		return ;
+	}
+	else {
+		// here i will handle the messeges and extraxt commands
+
+	}
+
+}
+
+void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets) {
 	
-	struct sockaddr_in clientAddr;
-	socklen_t clientAddrlen;
+	struct sockaddr_in	clientAddr;
+	socklen_t	clientAddrlen;
 	int clientFd;
 
 	clientAddrlen = sizeof(clientAddr);
 	clientFd = accept(serverFd, (sockaddr*)&clientAddr, &clientAddrlen);
 	if (clientFd == -1) {
+
 		std::cout << "Error accepting client connection" << std::endl;
-	} else {
+	} else if (clientSockets.size() < maxClients) {
+
 		struct pollfd clientSocket;
 		clientSocket.fd = clientFd;
 		clientSocket.events = POLLIN;
-		Fds.push_back(clientSocket);
+		clientSockets.push_back(clientSocket);
+	} else {
+		std::cout << "Reject Connection : Error max Clients." << std::endl;
+		close(clientFd);
 	}
 }
 
