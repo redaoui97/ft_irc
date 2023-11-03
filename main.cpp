@@ -1,8 +1,7 @@
 #include"include/server.hpp"
 #include <sys/socket.h>
 
-int main(int ac, char **av)
-{
+int main(int ac, char **av) {
 	Server server(100);
 	int port;
 

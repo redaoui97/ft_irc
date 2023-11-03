@@ -77,28 +77,28 @@ void	Server::startListening() {
 					clientData(i);
                 }
 			}
+		}
 	}
 }
 
-void	Server::clientData(int clientFd) {
+void	Server::clientData(int clientFd) const {
 
 	char buffer[1024];
 	ssize_t	bytes;
 
 	bytes = recv(clientFd, buffer, sizeof(buffer), 0);
 	if (bytes <= 0) {
-		if (bytes == 0)
+		if (bytes == 0) {
 			std::cout << "Client closed connection" << std::endl;
-		else 
+		} else { 
 			std::cout << "Error occurred during Client connection" << std::endl;
+		}
 		close(clientFd);
 		return ;
-	}
-	else {
+	} else {
 		// here i will handle the messeges and extraxt commands
-
+		std::cout << "messeges here" << std::endl;
 	}
-
 }
 
 void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets) {
