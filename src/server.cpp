@@ -7,11 +7,12 @@
 #include <sys/socket.h>
 #include <vector>
 
-Server::Server(int maxClients) {
+Server::Server(int maxClients, std::string const password) {
 
 	this->serverFd = -1;
 	this->port = -1;
 	this->maxClients = maxClients;
+	this->password = password;
 	std::cout << "Server constructor" << std::endl;
 }
 	
@@ -75,7 +76,7 @@ void	Server::startListening() {
 
 				if (clientSockets[i].revents & POLLIN) {
 					if (clientSockets[i].fd > 0) {
-						clientData(i);
+						clientData(clientSockets[i].fd);
 					} else {
 						std::cout << "invalid client socket";
 						clientSockets.erase(clientSockets.begin() + i);
@@ -98,6 +99,7 @@ void	Server::clientData(int clientFd) const {
 	}
 	bytes = recv(clientFd, buffer, sizeof(buffer), 0);
 	if (bytes <= 0) {
+		std::cout << "from here\n";
 		if (bytes == 0) {
 			std::cout << "Client closed connection" << std::endl;
 		} else if (errno == EBADF) {
@@ -117,7 +119,7 @@ void	Server::clientData(int clientFd) const {
 }
 
 void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets) {
-	
+
 	struct sockaddr_in	clientAddr;
 	socklen_t	clientAddrlen;
 	int clientFd;
@@ -133,6 +135,7 @@ void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets) {
 		clientSocket.fd = clientFd;
 		clientSocket.events = POLLIN;
 		clientSockets.push_back(clientSocket);
+		std::cout << "New Client have been Added" << std::endl;
 	} else {
 		std::cout << "Reject Connection : Error max Clients." << std::endl;
 		close(clientFd);

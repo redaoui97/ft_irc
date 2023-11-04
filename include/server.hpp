@@ -19,7 +19,7 @@
 
 class Server {
 	public:
-		Server(int maxClients);
+		Server(int maxClients, std::string const password);
 		~Server();
 
 		bool	initializeServer(int port);
@@ -29,6 +29,7 @@ class Server {
 	private:
 		int port;
 		int serverFd;
+		std::string password;
 		struct pollfd serverSocket;
 		std::vector<pollfd> clientSockets;
 		int maxClients;
