@@ -68,12 +68,12 @@ void	Server::startListening() {
 			std::cout << "Error polling the data from clients" << std::endl;
 			break;
 		}
-		for (int i = 0; i < clientSockets.size(); ++i) {
+		if (clientSockets[0].revents & POLLIN) {
+			newClientConnections(clientSockets);
+		} else {
+			for (int i = 0; i < clientSockets.size(); ++i) {
 
-			if (clientSockets[i].revents & POLLIN) {
-				if (i == serverSocket.fd) {
-					newClientConnections(clientSockets);
-				} else {
+				if (clientSockets[i].revents & POLLIN) {
 					if (clientSockets[i].fd > 0) {
 						clientData(i);
 					} else {
@@ -81,7 +81,7 @@ void	Server::startListening() {
 						clientSockets.erase(clientSockets.begin() + i);
 						--i;
 					}
-                }
+				}
 			}
 		}
 	}
@@ -102,7 +102,8 @@ void	Server::clientData(int clientFd) const {
 			std::cout << "Client closed connection" << std::endl;
 		} else if (errno == EBADF) {
             std::cout << "Error: Bad file descriptor" << std::endl;
-        } else { 
+        } 
+		else { 
 			perror("Error occurred during Client connection");
 		//	std::cout << "Error occurred during Client connection" << std::endl;
 		}
@@ -112,6 +113,7 @@ void	Server::clientData(int clientFd) const {
 		// here i will handle the messeges and extraxt commands
 		std::cout << "messeges here" << std::endl;
 	}
+
 }
 
 void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets) {
