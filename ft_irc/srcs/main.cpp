@@ -1,25 +1,24 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: rnabil <rnabil@student.1337.ma>            +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/30 17:35:42 by rnabil            #+#    #+#             */
-/*   Updated: 2023/09/30 18:01:56 by rnabil           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+#include"include/server.hpp"
+#include <sys/socket.h>
 
-#include "../include/irc.hpp"
+int main(int ac, char **av) {
 
-int main(int argc, char **argv)
-{
-    (void)argc;
-    (void)argv;
-    //set up server: create socket; set options (tcp ipv4); Bind port to socket; listen on port; accept connections
-    //Authentication (parsing; link to server)
-    //Communication (parsing; )
-    //Channels
-    //bot
-    return (0);
+	if(ac != 3)
+		return 1;
+
+	Server server(100, av[2]);
+	int port;
+
+	port = std::stoi(av[1]);
+	if (port < 0 || port > 65535) {
+		std::cout << "Error port number\n";
+		return 1;
+	}
+
+	if(!server.initializeServer(port)) {
+		std::cout << "Failed to initialize the server.\n";
+		return 1;
+	}
+	server.startListening();
+	return 0;
 }
