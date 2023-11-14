@@ -7,12 +7,12 @@
 #include <sys/socket.h>
 #include <vector>
 
-Server::Server(int maxClients, std::string const password) {
+Server::Server(int maxClients, const std::string& serverPassword) {
 
 	this->serverFd = -1;
 	this->port = -1;
 	this->maxClients = maxClients;
-	this->password = password;
+	this->serverPassword = serverPassword;
 	std::cout << "Server constructor" << std::endl;
 }
 	
@@ -59,27 +59,27 @@ void	Server::startListening() {
 
 	int filesnum;
 
-	clientSockets.reserve(maxClients);
-	clientSockets.push_back(serverSocket);
+	connectedClients.reserve(maxClients);
+	connectedClients.push_back(serverSocket);
 	while(1) {
 
-		filesnum = poll(clientSockets.data(), clientSockets.size(), -1);
+		filesnum = poll(connectedClients.data(), connectedClients.size(), -1);
 		if(filesnum == -1) {
 
 			std::cout << "Error polling the data from clients" << std::endl;
 			break;
 		}
-		if (clientSockets[0].revents & POLLIN) {
-			newClientConnections(clientSockets);
+		if (connectedClients[0].revents & POLLIN) {
+			newClientConnections(connectedClients);
 		} else {
-			for (int i = 0; i < clientSockets.size(); ++i) {
+			for (int i = 0; i < connectedClients.size(); ++i) {
 
-				if (clientSockets[i].revents & POLLIN) {
-					if (clientSockets[i].fd > 0) {
-						clientData(clientSockets[i].fd);
+				if (connectedClients[i].revents & POLLIN) {
+					if (connectedClients[i].fd > 0) {
+						clientData(connectedClients[i].fd);
 					} else {
 						std::cout << "invalid client socket";
-						clientSockets.erase(clientSockets.begin() + i);
+						connectedClients.erase(connectedClients.begin() + i);
 						--i;
 					}
 				}
@@ -92,6 +92,9 @@ void	Server::clientData(int clientFd) const {
 
 	char buffer[1024];
 	ssize_t	bytes;
+	std::string message;
+	std::string completeMessage;
+	size_t pos;
 
 	if (clientFd < 0) {
 		std::cout << "Error bad client file discriptor" << std::endl;
@@ -99,26 +102,35 @@ void	Server::clientData(int clientFd) const {
 	}
 	bytes = recv(clientFd, buffer, sizeof(buffer), 0);
 	if (bytes <= 0) {
-		std::cout << "from here\n";
 		if (bytes == 0) {
 			std::cout << "Client closed connection" << std::endl;
 		} else if (errno == EBADF) {
             std::cout << "Error: Bad file descriptor" << std::endl;
-        } 
-		else { 
-			perror("Error occurred during Client connection");
-		//	std::cout << "Error occurred during Client connection" << std::endl;
+        } else { 
+			std::cout << "Error occurred during Client connection" << std::endl;
+		}
+        for (auto it = connectedClients.begin(); it != connectedClients.end();) {
+			if (it->fd == clientFd) {
+				connectedClients.erase(it);
+				break;
+			}
+			++it;
 		}
 		close(clientFd);
 		return ;
 	} else {
-		// here i will handle the messeges and extraxt commands
-		std::cout << "messeges here" << std::endl;
+		completeMessage += std::string(buffer, bytes);
+		pos = completeMessage.find("\r\n");
+		std::cout << pos << std::endl;
+		while ((pos = completeMessage.find("\r\n")) != std::string::npos) {
+			message = completeMessage.substr(0, pos);
+			completeMessage.erase(0, pos + 2);
+			std::cout << message << std::endl;
+		}
 	}
-
 }
 
-void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets) {
+void	Server::newClientConnections(std::vector<struct pollfd>& connectedClients) {
 
 	struct sockaddr_in	clientAddr;
 	socklen_t	clientAddrlen;
@@ -129,16 +141,44 @@ void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets) {
 	if (clientFd == -1) {
 
 		std::cout << "Error accepting client connection" << std::endl;
-	} else if (clientSockets.size() < maxClients) {
+	} else if (connectedClients.size() < maxClients) {
 
-		struct pollfd clientSocket;
-		clientSocket.fd = clientFd;
-		clientSocket.events = POLLIN;
-		clientSockets.push_back(clientSocket);
-		std::cout << "New Client have been Added" << std::endl;
+		if (checkClientAuthorization(clientFd)) {
+			struct pollfd connectedClient;
+			connectedClient.fd = clientFd;
+			connectedClient.events = POLLIN;
+			connectedClients.push_back(connectedClient);
+		}
 	} else {
 		std::cout << "Reject Connection : Error max Clients." << std::endl;
 		close(clientFd);
+	}
+}
+
+bool Server::checkClientAuthorization(int clientFd) {
+
+	char buffer[1024];
+	ssize_t bytes;
+	std::string clientPassword;
+
+	send(clientFd, "Enter the server password: ", 26, 0);
+	bytes = recv(clientFd, buffer, sizeof(buffer), 0);
+	if (bytes <= 0) {
+
+		std::cout << "Error reading password from client" << std::endl;
+		close(clientFd);
+		return false;
+	}
+
+	clientPassword = std::string(buffer, bytes);
+	clientPassword = clientPassword.substr(0, clientPassword.find_last_not_of(" \t\n") + 1);
+	if (clientPassword == serverPassword) {
+		std::cout << "Client authenticated" << std::endl;
+		return true;
+	} else {
+		std::cout << "incorrect password, reject connection" << std::endl;
+		close(clientFd);
+		return false;
 	}
 }
 

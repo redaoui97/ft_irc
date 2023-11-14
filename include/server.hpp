@@ -19,19 +19,20 @@
 
 class Server {
 	public:
-		Server(int maxClients, std::string const password);
+		Server(int maxClients,const std::string &serverPassword);
 		~Server();
 
 		bool	initializeServer(int port);
 		void	startListening();
 		void	clientData(int clientFd) const;
+		bool	checkClientAuthorization(int clientFd);
 	
 	private:
 		int port;
 		int serverFd;
-		std::string password;
+		std::string serverPassword;
 		struct pollfd serverSocket;
-		std::vector<pollfd> clientSockets;
+		std::vector<pollfd> connectedClients;
 		int maxClients;
 		void	newClientConnections(std::vector<struct pollfd>&	clientSockets);
 
