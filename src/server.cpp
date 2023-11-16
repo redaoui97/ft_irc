@@ -91,28 +91,24 @@ void	Server::startListening() {
 	}
 }
 
-void	Server::CompleteMessage(const std::string& completeMessage) {
-	std::cout << "here: " << completeMessage << std::endl;
+void	Server::CompleteMessage(int clientFd, const std::string& completeMessage) {
+	std::cout << clientFd << " : " << completeMessage << std::endl;
 
 }
 
-std::string Server::incompleteBuffer = "";
 
-void	Server::processData(const std::string& data) {
+void	Server::processData(int clientFd, const std::string& data) {
 	size_t pos;
 	std::string completeMessage;
 
-	incompleteBuffer += data; // todo :intialize incomplete buffer
-	pos = incompleteBuffer.find("\r\n", 0);
-	std::cout << "this is the pos: " << pos << std::endl;
+	clientIncompleteBuffers[clientFd] += data;
+	pos = clientIncompleteBuffers[clientFd].find("\r\n", 0);
 	while (pos != std::string::npos) {
-		completeMessage = incompleteBuffer.substr(0, pos);
-		incompleteBuffer.erase(0, pos + 2);
-		CompleteMessage(completeMessage);
-		pos = incompleteBuffer.find("\r\n", 0);
-		std::cout << "incompletemessage" << std::endl;
+		completeMessage = clientIncompleteBuffers[clientFd].substr(0, pos);
+		clientIncompleteBuffers[clientFd].erase(0, pos + 2);
+		CompleteMessage(clientFd, completeMessage);
+		pos = clientIncompleteBuffers[clientFd].find("\r\n", 0);
 	}
-	std::cout << "this is the data: " << data << std::endl;
 }
 
 void	Server::clientData(int clientFd) {
@@ -133,15 +129,9 @@ void	Server::clientData(int clientFd) {
         } else { 
 			std::cout << "Error occurred during Client connection" << std::endl;
 		}
-
-		for (long unsigned int  i = 0; i < connectedClients.size();i++) {
-			if(connectedClients[i].fd == clientFd) {
-				connectedClients.erase(connectedClients.begin() + i);
-			}
-		}
-		close(clientFd);
+		removeDisconnectedClient(clientFd);
 	} else {
-		processData(std::string(buffer, bytes));
+		processData(clientFd, std::string(buffer, bytes));
 	}
 }
 
@@ -196,6 +186,23 @@ bool Server::checkClientAuthorization(int clientFd) {
 		close(clientFd);
 		return false;
 	}
+}
+
+void	Server::removeDisconnectedClient(int clientFd) {
+	
+	std::map<int, std::string>::iterator it;
+
+	it = clientIncompleteBuffers.find(clientFd);
+	if (it != clientIncompleteBuffers.end()) {
+		clientIncompleteBuffers.erase(it);
+	}
+	for (size_t i = 0; i < connectedClients.size();i++) {
+		if (connectedClients[i].fd == clientFd) {
+			connectedClients.erase(connectedClients.begin() + i);
+			break;
+		}
+	}
+	close(clientFd);
 }
 
 Server::~Server() {

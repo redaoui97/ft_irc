@@ -36,11 +36,12 @@ class Server {
 		struct pollfd		serverSocket;
 		std::vector<pollfd>	connectedClients;
 		long unsigned int	maxClients;
-		static std::string	incompleteBuffer;
+		std::map<int, std::string> clientIncompleteBuffers;
 
 		void				newClientConnections(std::vector<struct pollfd>&	clientSockets);
-		void				processData(const std::string& data);
-		void				CompleteMessage(const std::string& completeMessage);
+		void				processData(int clientFd, const std::string& data);
+		void				CompleteMessage(int clientFd, const std::string& completeMessage);
+		void				removeDisconnectedClient(int clientFd);
 
 };
 
