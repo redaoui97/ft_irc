@@ -1,10 +1,12 @@
 #include"../include/server.hpp"
 #include"../include/client.hpp"
+#include <cstddef>
 #include <fcntl.h>
 #include <iterator>
 #include <ostream>
 #include <sys/poll.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <vector>
 
 Server::Server(int maxClients, const std::string& serverPassword) {
@@ -29,6 +31,7 @@ bool	Server::initializeServer(int port) {
 
 	if (fcntl(serverFd, F_SETFL, O_NONBLOCK) == -1) {
 		std::cout << "Error Mode NonBlocking Server" << std::endl;
+		close(serverFd);
 		return false;
 	}
 
@@ -42,7 +45,7 @@ bool	Server::initializeServer(int port) {
 		return false;
 	}
 
-	if(listen(serverFd, 10) == -1) {
+	if(listen(serverFd, MAX_CONNECTED_CLIENTS) == -1) {
 		std::cout << "Error listening" << std::endl;
 		close(serverFd);
 		return 1;
@@ -72,7 +75,7 @@ void	Server::startListening() {
 		if (connectedClients[0].revents & POLLIN) {
 			newClientConnections(connectedClients);
 		} else {
-			for (int i = 0; i < connectedClients.size(); ++i) {
+			for (size_t i = 0; i < connectedClients.size(); ++i) {
 
 				if (connectedClients[i].revents & POLLIN) {
 					if (connectedClients[i].fd > 0) {
@@ -88,13 +91,34 @@ void	Server::startListening() {
 	}
 }
 
-void	Server::clientData(int clientFd) const {
+void	Server::CompleteMessage(const std::string& completeMessage) {
+	std::cout << "here: " << completeMessage << std::endl;
+
+}
+
+std::string Server::incompleteBuffer = "";
+
+void	Server::processData(const std::string& data) {
+	size_t pos;
+	std::string completeMessage;
+
+	incompleteBuffer += data; // todo :intialize incomplete buffer
+	pos = incompleteBuffer.find("\r\n", 0);
+	std::cout << "this is the pos: " << pos << std::endl;
+	while (pos != std::string::npos) {
+		completeMessage = incompleteBuffer.substr(0, pos);
+		incompleteBuffer.erase(0, pos + 2);
+		CompleteMessage(completeMessage);
+		pos = incompleteBuffer.find("\r\n", 0);
+		std::cout << "incompletemessage" << std::endl;
+	}
+	std::cout << "this is the data: " << data << std::endl;
+}
+
+void	Server::clientData(int clientFd) {
 
 	char buffer[1024];
 	ssize_t	bytes;
-	std::string message;
-	std::string completeMessage;
-	size_t pos;
 
 	if (clientFd < 0) {
 		std::cout << "Error bad client file discriptor" << std::endl;
@@ -109,26 +133,18 @@ void	Server::clientData(int clientFd) const {
         } else { 
 			std::cout << "Error occurred during Client connection" << std::endl;
 		}
-        for (auto it = connectedClients.begin(); it != connectedClients.end();) {
-			if (it->fd == clientFd) {
-				connectedClients.erase(it);
-				break;
+
+		for (long unsigned int  i = 0; i < connectedClients.size();i++) {
+			if(connectedClients[i].fd == clientFd) {
+				connectedClients.erase(connectedClients.begin() + i);
 			}
-			++it;
 		}
 		close(clientFd);
-		return ;
 	} else {
-		completeMessage += std::string(buffer, bytes);
-		pos = completeMessage.find("\r\n");
-		std::cout << pos << std::endl;
-		while ((pos = completeMessage.find("\r\n")) != std::string::npos) {
-			message = completeMessage.substr(0, pos);
-			completeMessage.erase(0, pos + 2);
-			std::cout << message << std::endl;
-		}
+		processData(std::string(buffer, bytes));
 	}
 }
+
 
 void	Server::newClientConnections(std::vector<struct pollfd>& connectedClients) {
 
