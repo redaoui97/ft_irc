@@ -70,4 +70,8 @@ During the data transmission over a network, the data is encapsulated, then is s
 <a href="https://www.cloudflare.com/learning/ddos/glossary/open-systems-interconnection-model-osi/">OSI</a> is a network model that describes a system of network functionality.  
 I'm not going to go through the protocols and the encapulation methods used during data transmission, and will instead put Socket under the microscope.  
 For Sockets, all you have to do is call the send() sys-call for Stream Sockets. Or sendto() (some encapsulated data using a method). The Kernel builds the Transport Layer and Internet Layer, and the hardware does the Network Access Layer.  
-Detailed documentation on networking <a href="https://datatracker.ietf.org/doc/html/rfc791">rfc791</a>.
+Detailed documentation on networking <a href="https://datatracker.ietf.org/doc/html/rfc792">rfc791</a>.
+### Notes from the Beej Sockets doc:
+<ul>
+    <li>ip addresses(switching from class notation into cidr notation<); subnets; port numbers; byte order(/li>
+</ul>
