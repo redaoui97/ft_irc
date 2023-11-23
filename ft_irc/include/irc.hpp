@@ -14,5 +14,7 @@
 # define IRC_HPP
 
 #include <iostream>
+#include "client.hpp"
+#include "server.hpp"
 
 #endif

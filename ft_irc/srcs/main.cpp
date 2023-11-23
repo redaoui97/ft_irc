@@ -1,5 +1,4 @@
-#include"include/server.hpp"
-#include <sys/socket.h>
+#include"../include/irc.hpp"
 
 int main(int ac, char **av) {
 

@@ -1,11 +1,5 @@
 #include"../include/server.hpp"
 #include"../include/client.hpp"
-#include <fcntl.h>
-#include <iterator>
-#include <ostream>
-#include <sys/poll.h>
-#include <sys/socket.h>
-#include <vector>
 
 Server::Server(int maxClients, std::string const password) {
 
@@ -72,7 +66,7 @@ void	Server::startListening() {
 		if (clientSockets[0].revents & POLLIN) {
 			newClientConnections(clientSockets);
 		} else {
-			for (int i = 0; i < clientSockets.size(); ++i) {
+			for (size_t i = 0; i < clientSockets.size(); ++i) {
 
 				if (clientSockets[i].revents & POLLIN) {
 					if (clientSockets[i].fd > 0) {
@@ -129,7 +123,7 @@ void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets) {
 	if (clientFd == -1) {
 
 		std::cout << "Error accepting client connection" << std::endl;
-	} else if (clientSockets.size() < maxClients) {
+	} else if (clientSockets.size() < (size_t)maxClients) {
 
 		struct pollfd clientSocket;
 		clientSocket.fd = clientFd;

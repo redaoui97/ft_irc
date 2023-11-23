@@ -1,4 +1,5 @@
-#pragma 
+#ifndef SERVER_HPP
+# define SERVER_HPP
 
 #include<iostream>
 #include<unistd.h>
@@ -36,3 +37,4 @@ class Server {
 		void	newClientConnections(std::vector<struct pollfd>&	clientSockets);
 
 };
+#endif

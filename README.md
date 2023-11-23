@@ -73,5 +73,14 @@ For Sockets, all you have to do is call the send() sys-call for Stream Sockets. 
 Detailed documentation on networking <a href="https://datatracker.ietf.org/doc/html/rfc792">rfc791</a>.
 ### Notes from the Beej Sockets doc:
 <ul>
-    <li>ip addresses(switching from class notation into cidr notation<); subnets; port numbers; byte order(/li>
+    <li>ip addresses(switching from class notation into cidr notation<); subnets; port numbers; byte order; structs(sockaddr_in; addrinfo; sockaddr_storage)</li>
+    <li>SysCalls</li>
 </ul>
+### Building the server
+#### socket life cycle
+<ol>
+    <li>Create a socket</li>
+    <li>Bind the socket to an addres</li>
+    <li></li>
+</ol>
+

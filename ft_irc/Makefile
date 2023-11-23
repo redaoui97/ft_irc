@@ -3,7 +3,7 @@ CC		= c++
 FLAGS	= -Wall -Wextra -Werror -std=c++98
 HEADER	= include/irc.hpp
 
-MAIN	= $(addprefix srcs/, main)
+MAIN	= $(addprefix srcs/, main server client)
 SRC		= $(MAIN:=.cpp)
 OBJ		= $(MAIN:=.o)
 
