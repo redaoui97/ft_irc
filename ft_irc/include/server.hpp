@@ -4,10 +4,14 @@
 
 #include "irc.hpp"
 
+#ifndef MAXCLIENTS
+# define MAXCLIENTS 100
+#endif
+
 class Server
 {
 	public:
-		Server(int maxClients, std::string const password);
+		Server(std::string const password);
 		~Server();
 		bool	initializeServer(int port);
 		void	startListening();
@@ -16,7 +20,6 @@ class Server
 	private:
 		int port;
 		int serverFd;
-		int maxClients;
 		std::string password;
 		struct pollfd serverSocket;
 		std::vector<pollfd> clientSockets;

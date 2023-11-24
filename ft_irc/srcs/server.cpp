@@ -1,12 +1,10 @@
 #include "irc.hpp"
 
-Server::Server(int maxClients, std::string const password)
+Server::Server(std::string const password)
 {
 	this->serverFd = -1;
 	this->port = -1;
-	this->maxClients = maxClients;
 	this->password = password;
-	std::cout << "Server constructor" << std::endl;
 }
 	
 bool	Server::initializeServer(int port)
@@ -17,12 +15,12 @@ bool	Server::initializeServer(int port)
 	//We could use 0 instead of IPPROTO_TCP for automatic kernel protocol recognition 
 	serverFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (serverFd == -1) {
-		std::cout << "Error at Creation of server socket" << std::endl;
+		throw SocketInitException("failed to create socket!");
 		return false;
 	}
 
 	if (fcntl(serverFd, F_SETFL, O_NONBLOCK) == -1) {
-		throw SocketInitException("Error Mode NonBlocking Server");
+		throw SocketInitException("failed to set-up NonBlocking mode");
 		return false;
 	}
 
@@ -31,13 +29,13 @@ bool	Server::initializeServer(int port)
 	ServerAddr.sin_addr.s_addr = inet_addr("0.0.0.0");
 
 	if(bind(serverFd, (sockaddr*)&ServerAddr, sizeof(ServerAddr)) == -1 ) {
-		std::cout << "Error Binding" << std::endl;
+		throw SocketInitException("failed to bind socket to port!");
 		close(serverFd);
 		return false;
 	}
 
 	if(listen(serverFd, 10) == -1) {
-		std::cout << "Error listening" << std::endl;
+		throw SocketInitException("failed to set-up listener!");
 		close(serverFd);
 		return 1;
 	}
@@ -45,7 +43,7 @@ bool	Server::initializeServer(int port)
 	serverSocket.fd = serverFd;
 	serverSocket.events = POLLIN;
 
-	std::cout << "the Server is initialized and listening on port :" << this->port << std::endl;
+	std::cout << "The Server is initialized and listening on port :" << this->port << std::endl;
 	return true;
 }
 
@@ -53,7 +51,7 @@ void	Server::startListening() {
 
 	int filesnum;
 
-	clientSockets.reserve(maxClients);
+	clientSockets.reserve(MAXCLIENTS);
 	clientSockets.push_back(serverSocket);
 	while(1) {
 
@@ -112,8 +110,8 @@ void	Server::clientData(int clientFd) const {
 
 }
 
-void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets) {
-
+void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
+{
 	struct sockaddr_in	clientAddr;
 	socklen_t	clientAddrlen;
 	int clientFd;
@@ -121,10 +119,8 @@ void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets) {
 	clientAddrlen = sizeof(clientAddr);
 	clientFd = accept(serverFd, (sockaddr*)&clientAddr, &clientAddrlen);
 	if (clientFd == -1) {
-
 		std::cout << "Error accepting client connection" << std::endl;
-	} else if (clientSockets.size() < (size_t)maxClients) {
-
+	} else if (clientSockets.size() < (size_t)MAXCLIENTS) {
 		struct pollfd clientSocket;
 		clientSocket.fd = clientFd;
 		clientSocket.events = POLLIN;
@@ -136,10 +132,8 @@ void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets) {
 	}
 }
 
-Server::~Server() {
-
-	if(serverFd != -1) {
+Server::~Server()
+{
+	if(serverFd != -1)
 		close(serverFd);
-	}
-	std::cout << "Server destructor" << std::endl;
 }
