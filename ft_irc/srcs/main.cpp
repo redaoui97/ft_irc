@@ -1,10 +1,13 @@
-#include"../include/irc.hpp"
+#include "irc.hpp"
+#include "server.hpp"
+#include "client.hpp"
 
 int main(int ac, char **av) {
 
 	if(ac != 3)
 		return 1;
 
+	//parsing
 	Server server(100, av[2]);
 	int port;
 

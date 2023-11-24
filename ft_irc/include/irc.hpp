@@ -1,20 +1,16 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   irc.hpp                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: rnabil <rnabil@student.1337.ma>            +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/30 17:34:44 by rnabil            #+#    #+#             */
-/*   Updated: 2023/09/30 17:35:05 by rnabil           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef IRC_HPP
 # define IRC_HPP
 
+//don't add unecessary headers
 #include <iostream>
-#include "client.hpp"
+#include <vector>
+#include <poll.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
 #include "server.hpp"
+#include "client.hpp"
 
 #endif

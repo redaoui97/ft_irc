@@ -1,5 +1,4 @@
-#include"../include/server.hpp"
-#include"../include/client.hpp"
+#include "irc.hpp"
 
 Server::Server(int maxClients, std::string const password) {
 
