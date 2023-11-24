@@ -2,25 +2,18 @@
 #include "server.hpp"
 #include "client.hpp"
 
-int main(int ac, char **av) {
+int main(int argc, char **argv)
+{
+	if(argc == 3)
+		parse(argv[1], argv[2]);
+	else
+		fatal_error("Invlid arguments!");
+	
+	Server server(100, argv[2]);
+	//check if it's a valid port
 
-	if(ac != 3)
-		return 1;
-
-	//parsing
-	Server server(100, av[2]);
-	int port;
-
-	port = std::stoi(av[1]);
-	if (port < 0 || port > 65535) {
-		std::cout << "Error port number\n";
-		return 1;
-	}
-
-	if(!server.initializeServer(port)) {
-		std::cout << "Failed to initialize the server.\n";
-		return 1;
-	}
+	if(!server.initializeServer(std::stoi(argv[1])))
+		fatal_error("Failed to initialize the server!");
 	server.startListening();
 	return 0;
 }

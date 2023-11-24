@@ -13,4 +13,8 @@
 #include "server.hpp"
 #include "client.hpp"
 
+//prototypes for orphan functions
+void	parse(std::string port,std::string password);
+void	fatal_error(std::string err_msg);
+void	normal_error(std::string err_msg);
 #endif

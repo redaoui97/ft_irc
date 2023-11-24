@@ -1,7 +1,7 @@
 #include "irc.hpp"
 
-Server::Server(int maxClients, std::string const password) {
-
+Server::Server(int maxClients, std::string const password)
+{
 	this->serverFd = -1;
 	this->port = -1;
 	this->maxClients = maxClients;
@@ -9,19 +9,20 @@ Server::Server(int maxClients, std::string const password) {
 	std::cout << "Server constructor" << std::endl;
 }
 	
-bool	Server::initializeServer(int port) {
-
+bool	Server::initializeServer(int port)
+{
 	struct sockaddr_in ServerAddr;
 
 	this->port = port;
-	serverFd = socket(AF_INET, SOCK_STREAM, 0);
+	//We could use 0 instead of IPPROTO_TCP for automatic kernel protocol recognition 
+	serverFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (serverFd == -1) {
 		std::cout << "Error at Creation of server socket" << std::endl;
 		return false;
 	}
 
 	if (fcntl(serverFd, F_SETFL, O_NONBLOCK) == -1) {
-		std::cout << "Error Mode NonBlocking Server" << std::endl;
+		throw SocketInitException("Error Mode NonBlocking Server");
 		return false;
 	}
 

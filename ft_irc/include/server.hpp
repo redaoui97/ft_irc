@@ -4,7 +4,8 @@
 
 #include "irc.hpp"
 
-class Server {
+class Server
+{
 	public:
 		Server(int maxClients, std::string const password);
 		~Server();
@@ -20,5 +21,18 @@ class Server {
 		struct pollfd serverSocket;
 		std::vector<pollfd> clientSockets;
 		void	newClientConnections(std::vector<struct pollfd>&	clientSockets);
+
+	class SocketInitException : public std::exception
+	{
+		private:
+			std::string errorMessage;
+		public:
+			SocketInitException(const std::string& message) : errorMessage("Socket Initialization exception triggered: " + message) {}
+			const char* what() const throw()
+			{
+				return errorMessage.c_str();
+			}
+			virtual ~SocketInitException() throw() {}
+	};
 };
 #endif
