@@ -2,6 +2,7 @@
 #include"../include/client.hpp"
 #include <cstddef>
 #include <fcntl.h>
+#include <fstream>
 #include <iterator>
 #include <ostream>
 #include <sys/poll.h>
@@ -93,6 +94,10 @@ void	Server::startListening() {
 
 void	Server::CompleteMessage(int clientFd, const std::string& completeMessage) {
 	std::cout << clientFd << " : " << completeMessage << std::endl;
+	std::fstream	prefix;
+	
+	std::fstream	command;
+
 
 }
 

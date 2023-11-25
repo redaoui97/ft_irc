@@ -45,4 +45,3 @@ class Server {
 
 };
 
-extern std::string Server_incompleteBuffer;

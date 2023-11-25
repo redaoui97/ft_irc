@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Wall -Wextra -Werror -std=c++98
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -g -O0 -fsanitize=address
 TARGET = ircserv
 SRCS = main.cpp ./src/server.cpp ./src/client.cpp
 OBJS = $(SRCS:.cpp=.o)
@@ -19,4 +19,3 @@ clean:
 fclean: clean
 
 re: fclean all
-
