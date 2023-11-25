@@ -4,11 +4,10 @@ Table of Contents
 
     Introduction
     General Rules
-    Mandatory Part
-        Requirements
-        For MacOS only
-        Test Example
-    Bonus Part
+    Network theory
+    Notes from the Beej Sockets doc:
+    Building the server
+    socket life cycle
 
 Introduction
 
@@ -27,65 +26,22 @@ General Rules
     Prefer using C++ features over C functions whenever possible.
     External libraries and Boost libraries are not allowed.
 
+#### Network theory
+During the data transmission over a network, the data is encapsulated, then is stripped off those layers when arrives to its destination.  
+<a href="https://www.cloudflare.com/learning/ddos/glossary/open-systems-interconnection-model-osi/">OSI</a> is a network model that describes a system of network functionality.  
+I'm not going to go through the protocols and the encapulation methods used during data transmission, and will instead put Socket under the microscope.  
+For Sockets, all you have to do is call the send() sys-call for Stream Sockets. Or sendto() (some encapsulated data using a method). The Kernel builds the Transport Layer and Internet Layer, and the hardware does the Network Access Layer.  
+Detailed documentation on networking <a href="https://datatracker.ietf.org/doc/html/rfc792">rfc791</a>.
+### Notes from the Beej Sockets doc:
+<ul>
+    <li>ip addresses(switching from class notation into cidr notation<); subnets; port numbers; byte order; structs(sockaddr_in; addrinfo; sockaddr_storage)</li>
+    <li>SysCalls</li>
+</ul>
+### Building the server
+#### socket life cycle
+<ol>
+    <li>Create a socket</li>
+    <li>Bind the socket to an addres</li>
+    <li></li>
+</ol>
 
-Mandatory Part
-
-Program Name: ircserv
-
-Turn in files: Makefile, *.{h, hpp}, *.cpp, *.tpp, *.ipp (and an optional configuration file)
-
-Makefile Rules: NAME, all, clean, fclean, re
-
-
-
-Arguments:
-
-    port: The listening port
-    password: The connection password
-
-
-
-External Functions: Everything in C++ 98, including functions like socket, close, setsockopt, getsockname, getprotobyname, gethostbyname, getaddrinfo, freeaddrinfo, bind, connect, listen, accept, htons, htonl, ntohs, ntohl, inet_addr, inet_ntoa, send, recv, signal, sigaction, lseek, fstat, fcntl, poll (or equivalent)
-
-
-Libft Authorized: N/A
-
-
-Description: Implement an IRC server in C++ 98 that can handle multiple clients simultaneously. Forking is not allowed; all I/O operations must be non-blocking. Use only one poll() (or equivalent) for handling operations. Your server should be able to authenticate, set a nickname, a username, join a channel, send and receive private messages, and forward messages to all clients that joined a channel. Implement operators and regular users, as well as commands specific to channel operators.
-
-
-Requirements
-
-    The server must handle multiple clients simultaneously and never hang.
-    You must use non-blocking file descriptors.
-    Only one poll() (or equivalent) should be used for handling all operations.
-    Implement communication between the client and server via TCP/IP (v4 or v6).
-    Your reference client must connect to your server without errors.
-
-
-
-For MacOS Only
-
-For MacOS, use fcntl() to achieve non-blocking file descriptors with the following command:
-
-fcntl(fd, F_SETFL, O_NONBLOCK);
-
-*Any other flags are forbidden.
-
-
-Test Example
-
-Verify every possible error and issue, including receiving partial data and low bandwidth. To ensure that your server correctly processes everything, use a simple test with nc as follows:
-
-sh
-                        
-$> nc 127.0.0.1 6667    
-com^Dman^Dd             
-$>                      
-
-Use Ctrl+D to send the command in several parts: 'com', then 'man', then 'd\n'. You need to aggregate received packets to rebuild the command.
-
-
-Bonus Part
-
-You can add extra features to your IRC server to make it more like an actual IRC server, such as handling file transfers or implementing a bot. The bonus part will only be assessed if the mandatory part is perfect, meaning all the mandatory requirements are met without any malfunctions.
