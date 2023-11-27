@@ -98,8 +98,7 @@ void	Server::clientData(int clientFd) const {
             std::cout << "Error: Bad file descriptor" << std::endl;
         } 
 		else { 
-			perror("Error occurred during Client connection");
-		//	std::cout << "Error occurred during Client connection" << std::endl;
+			normal_error("Error occurred during Client connection");
 		}
 		close(clientFd);
 		return ;
