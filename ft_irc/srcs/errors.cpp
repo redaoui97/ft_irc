@@ -1,4 +1,6 @@
-#include "irc.hpp"
+#include "../include/irc.hpp"
+#include "../include/server.hpp"
+#include "../include/client.hpp"
 
 void	normal_error(std::string err_msg)
 {

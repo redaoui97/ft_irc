@@ -1,6 +1,6 @@
-#include "irc.hpp"
-#include "server.hpp"
-#include "client.hpp"
+#include "../include/irc.hpp"
+#include "../include/server.hpp"
+#include "../include/client.hpp"
 
 static void ft_irc (std::string port, std::string password)
 {	
