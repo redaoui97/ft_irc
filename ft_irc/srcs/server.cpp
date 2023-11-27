@@ -70,7 +70,7 @@ void	Server::startListening() {
 					if (clientSockets[i].fd > 0) {
 						clientData(clientSockets[i].fd);
 					} else {
-						std::cout << "invalid client socket";
+						normal_error("invalid client socket");
 						clientSockets.erase(clientSockets.begin() + i);
 						--i;
 					}
@@ -89,7 +89,7 @@ void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
 	clientAddrlen = sizeof(clientAddr);
 	clientFd = accept(serverFd, (sockaddr*)&clientAddr, &clientAddrlen);
 	if (clientFd == -1) {
-		std::cout << "Error accepting client connection" << std::endl;
+		normal_error("Error accepting client connection");
 	} else if (clientSockets.size() < (size_t)MAXCLIENTS) {
 		struct pollfd clientSocket;
 		clientSocket.fd = clientFd;
@@ -97,7 +97,7 @@ void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
 		clientSockets.push_back(clientSocket);
 		std::cout << "New Client have been Added" << std::endl;
 	} else {
-		std::cout << "Reject Connection : Error max Clients." << std::endl;
+		normal_error("Reject Connection : Error max Clients.");
 		close(clientFd);
 	}
 }
