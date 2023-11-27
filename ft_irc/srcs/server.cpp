@@ -57,10 +57,10 @@ void	Server::startListening() {
 
 		filesnum = poll(clientSockets.data(), clientSockets.size(), -1);
 		if(filesnum == -1) {
-
-			std::cout << "Error polling the data from clients" << std::endl;
+			normal_error("Error polling the data from clients");
 			break;
 		}
+
 		if (clientSockets[0].revents & POLLIN) {
 			newClientConnections(clientSockets);
 		} else {
@@ -78,35 +78,6 @@ void	Server::startListening() {
 			}
 		}
 	}
-}
-
-void	Server::clientData(int clientFd) const {
-
-	char buffer[1024];
-	ssize_t	bytes;
-
-	if (clientFd < 0) {
-		std::cout << "Error bad client file discriptor" << std::endl;
-		return ;
-	}
-	bytes = recv(clientFd, buffer, sizeof(buffer), 0);
-	if (bytes <= 0) {
-		std::cout << "from here\n";
-		if (bytes == 0) {
-			std::cout << "Client closed connection" << std::endl;
-		} else if (errno == EBADF) {
-            std::cout << "Error: Bad file descriptor" << std::endl;
-        } 
-		else { 
-			normal_error("Error occurred during Client connection");
-		}
-		close(clientFd);
-		return ;
-	} else {
-		// here i will handle the messeges and extraxt commands
-		std::cout << "messeges here" << std::endl;
-	}
-
 }
 
 void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
@@ -129,6 +100,34 @@ void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
 		std::cout << "Reject Connection : Error max Clients." << std::endl;
 		close(clientFd);
 	}
+}
+
+void	Server::clientData(int clientFd) const {
+
+	char buffer[1024];
+	ssize_t	bytes;
+
+	if (clientFd < 0) {
+		normal_error("Error bad client file discriptor");
+		return ;
+	}
+	bytes = recv(clientFd, buffer, sizeof(buffer), 0);
+	if (bytes <= 0) {
+		if (bytes == 0) {
+			normal_error("Client closed connection");
+		} else if (errno == EBADF) {
+            normal_error("Error: Bad file descriptor");
+        } 
+		else { 
+			normal_error("Error occurred during Client connection");
+		}
+		close(clientFd);
+		return ;
+	} else {
+		// here i will handle the messeges and extraxt commands
+		std::cout << "messeges here" << std::endl;
+	}
+
 }
 
 Server::~Server()
