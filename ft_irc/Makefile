@@ -5,7 +5,8 @@ HEADER	= include/irc.hpp
 
 MAIN	= $(addprefix srcs/, main server client errors parsing)
 SRC		= $(MAIN:=.cpp)
-OBJ		= $(MAIN:=.o)
+OBJ_DIR = obj
+OBJ		= $(addprefix $(OBJ_DIR)/, $(notdir $(MAIN:=.o)))
 
 .PHONY: all clean fclean re
 
@@ -14,11 +15,13 @@ all: $(NAME)
 $(NAME): $(OBJ) $(HEADER)
 	$(CC) $(FLAGS) $(OBJ) -o $@
 
-%.o: %.cpp $(HEADER)
+$(OBJ_DIR)/%.o: srcs/%.cpp $(HEADER) | $(OBJ_DIR)
 	$(CC) $(FLAGS) -c $< -o $@
 
+$(OBJ_DIR):
+	@mkdir -p $(OBJ_DIR)
 clean:
-	@rm -f $(OBJ)
+	@rm -rf $(OBJ_DIR)
 
 fclean: clean
 	@rm -f $(NAME)
