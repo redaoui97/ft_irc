@@ -38,7 +38,7 @@ void	parse_password(std::string password)
 	}
 }
 
-void	parse(std::string port,std::string password)
+void	parse(const std::string& port,const std::string& password)
 {
 	parse_port(port);
 	parse_password(password);

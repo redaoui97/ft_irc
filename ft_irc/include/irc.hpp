@@ -16,7 +16,7 @@
 #include <cctype>
 
 //prototypes for orphan functions
-void	parse(std::string port,std::string password);
+void	parse(const std::string& port,const std::string& password);
 void	fatal_error(std::string err_msg);
 void	normal_error(std::string err_msg);
 #endif
