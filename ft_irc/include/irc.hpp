@@ -10,8 +10,10 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#include "server.hpp"
-#include "client.hpp"
+#include <string.h>
+#include <cstdlib> 
+#include <cerrno>
+#include <cctype>
 
 //prototypes for orphan functions
 void	parse(std::string port,std::string password);

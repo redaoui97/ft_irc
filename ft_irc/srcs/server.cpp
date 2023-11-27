@@ -1,4 +1,4 @@
-#include "irc.hpp"
+#include "../include/server.hpp"
 
 Server::Server(std::string const password)
 {

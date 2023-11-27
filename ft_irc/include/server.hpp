@@ -2,7 +2,7 @@
 # define SERVER_HPP
 //always go for ifndef over "pragma once" to avoid compiler compatibility issues
 
-#include "irc.hpp"
+#include "../include/irc.hpp"
 
 #ifndef MAXCLIENTS
 # define MAXCLIENTS 100

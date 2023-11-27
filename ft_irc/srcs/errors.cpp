@@ -1,4 +1,4 @@
-#include "irc.hpp"
+#include "../include/irc.hpp"
 
 void	normal_error(std::string err_msg)
 {

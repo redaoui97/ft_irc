@@ -1,11 +1,11 @@
-#include "irc.hpp"
-#include "server.hpp"
-#include "client.hpp"
+#include "../include/irc.hpp"
+#include "../include/server.hpp"
+#include "../include/client.hpp"
 
 static void ft_irc (std::string port, std::string password)
 {	
 	Server server(password);
-	if(!server.initializeServer(std::stoi(port)))
+	if(!server.initializeServer(atoi(port.c_str())))
 		fatal_error("Failed to initialize the server!");
 	server.startListening();
 }
