@@ -1,9 +1,6 @@
 #include "../include/irc.hpp"
-#include <cctype>
-#include <cstdlib>
 
-void	parse_port(std::string port)
-{
+void	parse_port(std::string port) {
 	int port_n;
 
 	if (port.empty()) {
@@ -22,8 +19,7 @@ void	parse_port(std::string port)
 	}
 }
 
-void	parse_password(std::string password)
-{
+void	parse_password(std::string password) {
 
 	if (password.empty()) {
 		fatal_error("Invalid password!, Empty One");
@@ -38,8 +34,7 @@ void	parse_password(std::string password)
 	}
 }
 
-void	parse(const std::string& port,const std::string& password)
-{
+void	parse(const std::string& port,const std::string& password) {
 	parse_port(port);
 	parse_password(password);
 }

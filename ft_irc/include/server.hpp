@@ -3,6 +3,7 @@
 //always go for ifndef over "pragma once" to avoid compiler compatibility issues
 
 #include "../include/irc.hpp"
+#include "../include/bot.hpp"
 
 #ifndef MAXCLIENTS
 # define MAXCLIENTS 100
@@ -16,6 +17,7 @@ class Server
 		bool	initializeServer(int port);
 		void	startListening();
 		void	clientData(int clientFd) const;
+		std::string getBotQuote() const;
 	
 	private:
 		int port;
@@ -24,6 +26,7 @@ class Server
 		struct pollfd serverSocket;
 		std::vector<pollfd> clientSockets;
 		void	newClientConnections(std::vector<struct pollfd>&	clientSockets);
+		Bot	bot;
 
 	class SocketInitException : public std::exception
 	{

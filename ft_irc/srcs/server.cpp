@@ -1,14 +1,12 @@
 #include "../include/server.hpp"
 
-Server::Server(std::string const password)
-{
+Server::Server(std::string const password) {
 	this->serverFd = -1;
 	this->port = -1;
 	this->password = password;
 }
 	
-bool	Server::initializeServer(int port)
-{
+bool	Server::initializeServer(int port) {
 	struct sockaddr_in ServerAddr;
 
 	this->port = port;
@@ -80,8 +78,7 @@ void	Server::startListening() {
 	}
 }
 
-void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
-{
+void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets) {
 	struct sockaddr_in	clientAddr;
 	socklen_t	clientAddrlen;
 	int clientFd;
@@ -128,6 +125,17 @@ void	Server::clientData(int clientFd) const {
 		std::cout << "messeges here" << std::endl;
 	}
 
+}
+
+std::string	Server::getBotQuote() const {
+	std::string quote;
+
+	quote = bot.quote();
+	if (quote.empty()) {
+		normal_error("empty Quote");
+		return ("");
+	}
+	return (quote);
 }
 
 Server::~Server()
