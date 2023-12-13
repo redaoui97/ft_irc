@@ -12,7 +12,6 @@ bool	Server::initializeServer(int port)
 	struct sockaddr_in ServerAddr;
 
 	this->port = port;
-	//We could use 0 instead of IPPROTO_TCP for automatic kernel protocol recognition 
 	serverFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (serverFd == -1) {
 		throw SocketInitException("failed to create socket!");
@@ -53,8 +52,8 @@ void	Server::startListening() {
 
 	clientSockets.reserve(MAXCLIENTS);
 	clientSockets.push_back(serverSocket);
-	while(1) {
-
+	while(1)
+	{
 		filesnum = poll(clientSockets.data(), clientSockets.size(), -1);
 		if(filesnum == -1) {
 			normal_error("Error polling the data from clients");
@@ -80,54 +79,74 @@ void	Server::startListening() {
 	}
 }
 
-void	Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
+void Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
 {
-	struct sockaddr_in	clientAddr;
-	socklen_t	clientAddrlen;
-	int clientFd;
+    int clientFd;
+    socklen_t clientAddrlen;
+    struct sockaddr_in clientAddr;
+    struct in_addr ip; 
 
-	clientAddrlen = sizeof(clientAddr);
-	clientFd = accept(serverFd, (sockaddr*)&clientAddr, &clientAddrlen);
-	if (clientFd == -1) {
-		normal_error("Error accepting client connection");
-	} else if (clientSockets.size() < (size_t)MAXCLIENTS) {
-		struct pollfd clientSocket;
-		clientSocket.fd = clientFd;
-		clientSocket.events = POLLIN;
-		clientSockets.push_back(clientSocket);
-		std::cout << "New Client have been Added" << std::endl;
-	} else {
-		normal_error("Reject Connection : Error max Clients.");
-		close(clientFd);
-	}
+    clientAddrlen = sizeof(clientAddr);
+    clientFd = accept(serverFd, (sockaddr*)&clientAddr, &clientAddrlen);
+    if (clientFd == -1) {
+        normal_error("Error accepting client connection");
+    } else if (clientSockets.size() < (size_t)MAXCLIENTS) {
+        struct pollfd clientSocket;
+        clientSocket.fd = clientFd;
+        clientSocket.events = POLLIN;
+        clientSockets.push_back(clientSocket);
+        ip = clientAddr.sin_addr;
+
+        // Retrieve and print the IP correctly
+        char str[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &ip, str, INET_ADDRSTRLEN);
+        std::cout << "New Client added. IP: " << str << std::endl;
+    } else {
+        normal_error("Reject Connection: Error max Clients.");
+        close(clientFd);
+    }
 }
 
 void	Server::clientData(int clientFd) const {
 
-	char buffer[1024];
-	ssize_t	bytes;
+	ssize_t		bytes;
+	char 		buffer[512];
+	std::string	full_buffer;
 
-	if (clientFd < 0) {
+	if (clientFd < 0)
+	{
 		normal_error("Error bad client file discriptor");
 		return ;
 	}
-	bytes = recv(clientFd, buffer, sizeof(buffer), 0);
-	if (bytes <= 0) {
-		if (bytes == 0) {
-			normal_error("Client closed connection");
-		} else if (errno == EBADF) {
-            normal_error("Error: Bad file descriptor");
-        } 
-		else { 
-			normal_error("Error occurred during Client connection");
+	//clear buffer after each iteration
+	do
+	{
+		clear_buffer(buffer, 512);
+		bytes = recv(clientFd, buffer, sizeof(buffer), 0);
+		if (bytes <= 0)
+		{
+			if (bytes == 0)
+			{
+				normal_error("Client closed connection");
+			}
+			else if (errno == EBADF)
+			{
+				normal_error("Error: Bad file descriptor");
+			} 
+			else
+			{ 
+				normal_error("Error occurred during Client connection");
+			}
+			close(clientFd);
+			return ;
 		}
-		close(clientFd);
-		return ;
-	} else {
-		// here i will handle the messeges and extraxt commands
-		std::cout << "messeges here" << std::endl;
-	}
-
+		else
+		{
+			full_buffer += buffer;
+			if (bytes != 512)
+				process_command(full_buffer, client);
+		}
+	} while (bytes == 512);
 }
 
 Server::~Server()
@@ -135,3 +154,4 @@ Server::~Server()
 	if(serverFd != -1)
 		close(serverFd);
 }
+//take the commands and parse them then execute

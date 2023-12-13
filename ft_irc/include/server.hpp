@@ -1,6 +1,5 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
-//always go for ifndef over "pragma once" to avoid compiler compatibility issues
 
 #include "../include/irc.hpp"
 

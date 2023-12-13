@@ -6,17 +6,14 @@ void	parse_port(std::string port)
 {
 	int port_n;
 
-	if (port.empty()) {
+	if (port.empty())
 		fatal_error("Invalid port!, Empty One");
-	}
 	for (size_t i = 0;i < port.length(); ++i) {
 		if (!isdigit(port[i])) {
 			fatal_error("Invalid port!, Digits Only!");
 		}
 	}
-
 	port_n = std::atoi(port.c_str());
-	std::cout << "te port number is : "<< port_n << std::endl;
 	if (port_n < 1 || port_n > 65535) {
 		fatal_error("Invalid port!, Out of range[1-65535]");
 	}
