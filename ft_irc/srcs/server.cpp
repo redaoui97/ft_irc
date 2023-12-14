@@ -7,8 +7,25 @@ Server::Server(std::string const password)
 	this->serverFd = -1;
 	this->port = -1;
 	this->password = password;
+	this->server_version = "0.01v";
+	time_t now = time(0);
+	this->make_time = to_String(ctime(&now));
 }
 	
+bool	Server::client_exists(std::string nick)
+{
+	std::vector<Client*>::iterator it;
+
+	for (it = clients.begin(); it != clients.end(); ++it)
+	{
+        if (nick.compare((*it)->getNickname()) == 0)
+		{
+			return (true);
+		}
+    }
+	return (false);
+}
+
 bool	Server::initializeServer(int port)
 {
 	struct sockaddr_in ServerAddr;
@@ -56,7 +73,7 @@ void	Server::startListening() {
 	clientSockets.push_back(serverSocket);
 	while(1)
 	{
-		filesnum = poll(clientSockets.data(), clientSockets.size(), -1);
+		filesnum = poll(clientSockets.data(), clientSockets.size(), 50000);
 		if(filesnum == -1) {
 			normal_error("Error polling the data from clients");
 			break;
@@ -165,8 +182,9 @@ void	Server::clientData(int clientFd)
 		else
 		{
 			full_buffer += buffer;
+			find_user(clientFd)->SetServer(this);
 			if (bytes != 512)
-				process_command(full_buffer, find_user(clientFd));
+				process_command(full_buffer, find_user(clientFd), this->password);
 		}
 	} while (bytes == 512);
 }

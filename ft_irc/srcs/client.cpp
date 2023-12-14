@@ -12,6 +12,8 @@ Client::Client(int clientFd, char* ip)
 	m_realname = "";
 	m_password_provided = "";
 	m_ip = ip;
+	m_right_password = false;
+	current_server = NULL;
 }
 
 int Client::getClientFd() const
@@ -90,4 +92,24 @@ void Client::AuthenticationStatus(bool status)
 Client::~Client()
 {
 	close(m_clientFd);
+}
+
+bool Client::HasRightPassword() const
+{
+	return (m_right_password);
+}
+
+void Client::SetRightPassword(bool status)
+{
+	m_right_password = status;
+}
+
+void Client::SetServer(Server *server)
+{
+	current_server = server;
+}
+
+Server* Client::GetServer()
+{
+	return (current_server);
 }

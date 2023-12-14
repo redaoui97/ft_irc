@@ -17,12 +17,16 @@ class Server
 		bool	initializeServer(int port);
 		void	startListening();
 		void	clientData(int clientFd);
+		bool	client_exists(std::string nick);
 	
 	private:
 		int port;
 		int serverFd;
 		std::string password;
 		struct pollfd serverSocket;
+		std::string	  server_version;
+		std::string	  make_time;
+		std::string   make_date;
 		std::vector<pollfd> clientSockets;
 		std::vector<Client*> clients;
 		Client *find_user(int clientFd);

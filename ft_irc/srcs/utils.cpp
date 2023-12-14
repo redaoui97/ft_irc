@@ -1,5 +1,6 @@
 #include "../include/server.hpp"
 #include "../include/client.hpp"
+#include "../include/irc.hpp"
 
 void splitString(std::string input, std::string delimiter, std::queue<std::string> &result)
 {
@@ -27,6 +28,14 @@ void	clear_buffer(char *buffer, int size)
 	}
 }
 
+std::string	to_String(int n)
+{
+	std::stringstream	ss;
+
+	ss << n;
+	return (ss.str());
+}
+
 std::string tolower(std::string input)
 {
     int i = 0;
@@ -49,4 +58,39 @@ void send_message(std::string msg, Client *client)
 			std::cout << "sending error" << std::endl; // to check later 
 		sent += send_status;
 	}
+}
+std::string host_name()
+{
+    char host[253];
+    if (gethostname(host, sizeof(host)) == -1)
+        return "";
+    return host;
+}
+
+void    send_err(Client *client,  err_replies rep, std::string additional_message)
+{
+    std::string message;
+
+    switch (rep)
+    {
+        case ERR_PASSWDMISMATCH:
+            message = (":" + host_name() + " 464 * " + additional_message + "\r\n");
+            break;
+        case ERR_ALREADYREGISTERED:
+            message = (":" + host_name() + " 462 * " + additional_message + "\r\n");
+            break;
+        case ERR_NEEDMOREPARAMS:
+            message = (":" + host_name() + " 461 * " + additional_message + "\r\n");
+            break;
+        case ERR_NONICKNAMEGIVEN:
+            message = (":" + host_name() + " 431 * " + additional_message + "\r\n");
+            break;
+        case ERR_ERRONEUSNICKNAME:
+            message = (":" + host_name() + " 432 * " + additional_message + "\r\n");
+            break;
+        default :
+            message = "hh";
+            break;
+    } 
+    send_message(message, client);
 }

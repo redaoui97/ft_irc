@@ -3,6 +3,7 @@
 
 #include "../include/irc.hpp"
 #include "channel.hpp"
+#include "../include/server.hpp"
 
 class Client {
 
@@ -16,6 +17,8 @@ class Client {
 		std::string m_password_provided;
 		std::string	m_ip;
 		bool		m_isauthenticated;
+		bool		m_right_password;
+		Server		*current_server;
 		std::map<std::string, channel *> m_channels;
 		
 	public:
@@ -31,6 +34,8 @@ class Client {
 		std::string isPasswordProvided() const;
 		std::string	getIp() const;
 		bool		IsAuthenticated() const;
+		bool		HasRightPassword() const;
+		Server		*GetServer();
 		//setters
 		void setClientFd(int fd);
 		void setUsername(std::string username);
@@ -40,6 +45,8 @@ class Client {
 		void setRealname(std::string realname);
 		void setIp(std::string ip);
 		void AuthenticationStatus(bool status);
+		void SetRightPassword(bool status);
+		void SetServer(Server *server);
 };
 
 #endif

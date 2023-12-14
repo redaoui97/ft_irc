@@ -2,40 +2,36 @@
 #include "../include/client.hpp"
 
 //preparing the input 
-void	process_command(std::string buffer, Client *client)
+void	process_command(std::string buffer, Client *client, std::string password)
 {
 	std::queue<std::string>  commands_queue;
 	std::vector<std::string> prepared_command;
 	std::string				 command;
 
 	splitString(buffer, "\r\n", commands_queue);
-	std::cout << "processing command for client: " << client->getClientFd() << std::endl;
 	while (!commands_queue.empty())
 	{
 		command = commands_queue.front();
 		commands_queue.pop();
-		std::cout << "command: " << command << std::endl;
-		prepared_command = process_single_command(command, client);
+		if (command.size())
+		{
+			prepared_command = process_single_command(command);
+			execute_commands(prepared_command, client, password);
+		}
 	}
 }
 
-std::vector<std::string> process_single_command(std::string command, Client *client)
+std::vector<std::string> process_single_command(std::string command)
 {
 	std::vector<std::string> command_vector;
     std::istringstream iss(command);
     std::string token;
 	std::string iteration_token;
-	bool		command_found = false;
 
 	//need to fix parser -> many spaces break the trailing and takes every space as arguemnt -> ':' shouldn't be part of the param
-
+	//this function will be replaced by the trailing handler function by athmane 
     while (std::getline(iss, token, ' '))
 	{
-		if (!command_found)
-		{
-			// if (!look_up_command(token))
-				client_error("error(421): " + token + "Unknown command");
-		}
         if (!command_vector.empty() && command_vector.back().front() == ':' && !token.empty())
 		{
             command_vector.back() += ' ' + token;
@@ -45,39 +41,111 @@ std::vector<std::string> process_single_command(std::string command, Client *cli
             command_vector.push_back(token);
         }
     }
-	int i = 0;
-	while (i < (int)command_vector.size())
-	{
-		std::cout << "arg" << i << ": " << command_vector.at(i) << std::endl;
-		i++;
-	}
+
     return (command_vector);
 }
 
-//attributing the appropriate function
-bool	look_up_command(std::string command_name)
-{
-	std::string commands[] = {"command1", "command2"};
-	int			i = 0;
-
-	while (i < (int)(sizeof(commands)/sizeof(std::string)))
-	{
-		if (1)
-		(void)command_name;
-		i++;
-	}
-	return (false);
-}
-// int	execute_command(std::string command)
-// {
-// 	int	return_value = EXIT_SUCCESS;
-
-
-// }
 
 //execute the function
+void execute_commands(std::vector<std::string>args, Client* client, std::string password)
+{
+	if (!client->IsAuthenticated())
+		authentication(args, client, password);
+}
+
 //authentication commands
-// int	pass_command(std::vector<std::string> command)
-// {
-// 	return (EXIT_SUCCESS);
-// }
+void	authentication(std::vector<std::string>args, Client* client, std::string password)
+{
+	if ((args.front()).compare("PASS") == 0)
+		pass_cmd(client, args, password);
+	else if (!client->HasRightPassword())
+	{
+		send_err(client, ERR_PASSWDMISMATCH, ":Password incorrect, please authenticate first");
+	}
+	else
+	{
+		if ((args.front()).compare("NICK") == 0)
+		{
+			nick_cmd(client, args);
+		}
+		else if ((args.front()).compare("USER") == 0)
+		{
+			user_cmd(client, args);
+		}
+	}
+}
+
+void nick_cmd(Client *client, std::vector<std::string> args)
+{
+	if(args.size() < 2)
+	{
+		send_err(client, ERR_NONICKNAMEGIVEN, ":No nickname given");
+		return ;
+	}
+	if (!valid_nickname(args.at(1)))
+	{
+		send_err(client, ERR_ERRONEUSNICKNAME, ":Erroneus nickname");
+		return ;
+	}
+	if (client->GetServer()->client_exists(args.at(1)))
+	{
+    	send_message(":" + host_name() + " " + args.at(1) + " 433 * " + ":Nickname is already in use" + "\r\n", client);
+		return ;
+	}
+	//I haven't tested this yet. Test it after authentication
+	if (client->IsAuthenticated())
+	{
+		send_message(":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getIp() + ".ip NICK :" +args.at(1), client);
+	}
+	client->setNickname(args.at(1));
+}
+
+void user_cmd(Client *client, std::vector<std::string> args)
+{
+	if ((client->getNickname()).empty())
+		return ;
+	if (args.size() < 5)
+	{
+    	send_message(":" + host_name() + " " + args.at(0) + " 461 " + ":Not enough parameters" + "\r\n", client);
+		return ;
+	}
+	if (client->IsAuthenticated())
+	{
+		send_err(client, ERR_ALREADYREGISTERED, ":You may not reregister");
+		return ;
+	}
+	client->setRealname(args.at(4));
+	client->setUsername(args.at(1));
+	client->AuthenticationStatus(true);
+	trigger_welcome(client);
+}
+
+void trigger_welcome(Client *client)
+{
+    send_message(":" + host_name() + " 001 " + client->getNickname() + ":Welcome to the " + SERVER_NAME + " " +  + "\r\n", client);
+
+}
+
+void	pass_cmd(Client *client, std::vector<std::string> args, std::string password)
+{
+	if (args.size() != 2)
+	{
+		send_err(client, ERR_NEEDMOREPARAMS, ":Not enough parameters");
+		return ;
+	}
+	if (client->IsAuthenticated())
+	{
+		send_err(client, ERR_ALREADYREGISTERED, ":You may not reregister");
+		return ;
+	}
+	else
+	{
+		if (args.at(1).compare(password))
+			send_err(client, ERR_PASSWDMISMATCH, ":Password incorrect");
+		else
+		{
+			std::cout << "nice password" << std::endl;
+			client->SetRightPassword(true);
+		}
+	}
+}

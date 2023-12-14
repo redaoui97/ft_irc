@@ -35,6 +35,18 @@ void	parse_password(std::string password)
 	}
 }
 
+bool	valid_nickname(std::string nickname)
+{
+	if (isdigit(nickname[0]) || nickname[0] == ' ' || nickname[0] == '#' || nickname[0] == ':')
+        return (false);
+	for(int i = 0;i < nickname.size();i++)
+	{
+		if (!isalnum(nickname[i]) && nickname[i] != '[' && nickname[i] != ']' && nickname[i] != '{' && nickname[i] != '}' && nickname[i] != '\\' && nickname[i] != '|' && nickname[i] != '@')
+				return (false);
+    }
+	return (true);
+}
+
 void	parse(const std::string& port,const std::string& password)
 {
 	parse_port(port);
