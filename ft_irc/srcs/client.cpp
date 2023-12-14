@@ -1,9 +1,9 @@
 #include"../include/client.hpp"
 #include "channel.hpp"
 
-Client::Client(int clientFd)
+Client::Client(int clientFd, char* ip)
 {
-	m_isauthenticated = 0;
+	m_isauthenticated = false;
 	m_clientFd = clientFd;
 	m_username = "";
 	m_hostname = "";
@@ -11,7 +11,7 @@ Client::Client(int clientFd)
 	m_servername = "";
 	m_realname = "";
 	m_password_provided = "";
-	m_ip = "";
+	m_ip = ip;
 }
 
 int Client::getClientFd() const

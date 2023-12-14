@@ -1,23 +1,25 @@
 #include "../include/server.hpp"
+#include "../include/client.hpp"
 
 //preparing the input 
-void	process_command(std::string buffer, Client &client)
+void	process_command(std::string buffer, Client *client)
 {
 	std::queue<std::string>  commands_queue;
 	std::vector<std::string> prepared_command;
 	std::string				 command;
 
 	splitString(buffer, "\r\n", commands_queue);
+	std::cout << "processing command for client: " << client->getClientFd() << std::endl;
 	while (!commands_queue.empty())
 	{
 		command = commands_queue.front();
 		commands_queue.pop();
 		std::cout << "command: " << command << std::endl;
-		prepared_command = process_single_command(command);
+		prepared_command = process_single_command(command, client);
 	}
 }
 
-std::vector<std::string> process_single_command(std::string command)
+std::vector<std::string> process_single_command(std::string command, Client *client)
 {
 	std::vector<std::string> command_vector;
     std::istringstream iss(command);
@@ -31,7 +33,7 @@ std::vector<std::string> process_single_command(std::string command)
 	{
 		if (!command_found)
 		{
-			if (!look_up_command(token))
+			// if (!look_up_command(token))
 				client_error("error(421): " + token + "Unknown command");
 		}
         if (!command_vector.empty() && command_vector.back().front() == ':' && !token.empty())
@@ -60,7 +62,8 @@ bool	look_up_command(std::string command_name)
 
 	while (i < (int)(sizeof(commands)/sizeof(std::string)))
 	{
-		if ()
+		if (1)
+		(void)command_name;
 		i++;
 	}
 	return (false);

@@ -33,8 +33,8 @@ int		parse_command(std::string command);
 
 //IRC command functions
 	//processing input functions
-void	process_command(std::string buffer, Client &client);
-std::vector<std::string> process_single_command(std::string command);
+void	process_command(std::string buffer, Client *client);
+std::vector<std::string> process_single_command(std::string command, Client *client);
 	//executing commands
 int	execute_command(std::string command);
 int	pass_command(std::vector<std::string> command);
@@ -42,4 +42,5 @@ int	pass_command(std::vector<std::string> command);
 //util functions
 void 	splitString(std::string input, std::string delimiter, std::queue<std::string> &result);
 void	clear_buffer(char *buffer, int size);
+void 	send_message(std::string msg, Client *client);
 #endif

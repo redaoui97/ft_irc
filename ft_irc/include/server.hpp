@@ -7,6 +7,8 @@
 # define MAXCLIENTS 100
 #endif
 
+//additional functions 
+Client* create_client(int clientFd, char *ip);
 class Server
 {
 	public:
@@ -14,7 +16,7 @@ class Server
 		~Server();
 		bool	initializeServer(int port);
 		void	startListening();
-		void	clientData(int clientFd) const;
+		void	clientData(int clientFd);
 	
 	private:
 		int port;
@@ -22,7 +24,10 @@ class Server
 		std::string password;
 		struct pollfd serverSocket;
 		std::vector<pollfd> clientSockets;
+		std::vector<Client*> clients;
+		Client *find_user(int clientFd);
 		void	newClientConnections(std::vector<struct pollfd>&	clientSockets);
+
 
 	class SocketInitException : public std::exception
 	{

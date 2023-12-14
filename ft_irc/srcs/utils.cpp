@@ -1,4 +1,5 @@
 #include "../include/server.hpp"
+#include "../include/client.hpp"
 
 void splitString(std::string input, std::string delimiter, std::queue<std::string> &result)
 {
@@ -30,10 +31,22 @@ std::string tolower(std::string input)
 {
     int i = 0;
 
-    while (i < input.size())
+    while (i < (int)input.size())
     {
         std::tolower (input.at(i));
         i++;
     }
     return (input);
+}
+
+void send_message(std::string msg, Client *client)
+{
+    size_t sent = 0;
+	while (sent != msg.length())
+	{
+		ssize_t send_status = send(client->getClientFd() ,msg.c_str() + sent ,msg.length() - sent, 0);
+		if (send_status == -1)
+			std::cout << "sending error" << std::endl; // to check later 
+		sent += send_status;
+	}
 }

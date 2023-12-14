@@ -19,7 +19,7 @@ class Client {
 		std::map<std::string, channel *> m_channels;
 		
 	public:
-		Client(int clientFd);
+		Client(int clientFd, char* ip);
 		~Client();
 		//getters
 		int 		getClientFd() const;

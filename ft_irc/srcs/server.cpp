@@ -1,4 +1,6 @@
 #include "../include/server.hpp"
+#include "../include/client.hpp"
+#include "../include/irc.hpp"
 
 Server::Server(std::string const password)
 {
@@ -79,12 +81,17 @@ void	Server::startListening() {
 	}
 }
 
+Client* create_client(int clientFd, char *ip)
+{
+    return (new Client(clientFd, ip));
+}
+
 void Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
 {
     int clientFd;
     socklen_t clientAddrlen;
     struct sockaddr_in clientAddr;
-    struct in_addr ip; 
+    struct in_addr ip;
 
     clientAddrlen = sizeof(clientAddr);
     clientFd = accept(serverFd, (sockaddr*)&clientAddr, &clientAddrlen);
@@ -100,15 +107,30 @@ void Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
         // Retrieve and print the IP correctly
         char str[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &ip, str, INET_ADDRSTRLEN);
+		clients.push_back(create_client(clientFd, str));
         std::cout << "New Client added. IP: " << str << std::endl;
+
     } else {
         normal_error("Reject Connection: Error max Clients.");
         close(clientFd);
     }
 }
 
-void	Server::clientData(int clientFd) const {
+Client* Server::find_user(int clientFd)
+{
+	std::vector<Client*>::iterator it;
+    
+    for (it = clients.begin(); it != clients.end(); ++it)
+	{
+        if ((*it)->getClientFd() == clientFd) {
+            return *it;
+        }
+    }
+    return (nullptr);
+}
 
+void	Server::clientData(int clientFd)
+{
 	ssize_t		bytes;
 	char 		buffer[512];
 	std::string	full_buffer;
@@ -144,7 +166,7 @@ void	Server::clientData(int clientFd) const {
 		{
 			full_buffer += buffer;
 			if (bytes != 512)
-				process_command(full_buffer, client);
+				process_command(full_buffer, find_user(clientFd));
 		}
 	} while (bytes == 512);
 }
@@ -153,5 +175,7 @@ Server::~Server()
 {
 	if(serverFd != -1)
 		close(serverFd);
+	for (std::vector<Client*>::iterator it = clients.begin(); it != clients.end(); ++it)
+        delete *it;
 }
 //take the commands and parse them then execute
