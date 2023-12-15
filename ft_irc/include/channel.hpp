@@ -36,6 +36,7 @@ class channel
 		void set_topic_restriction(bool status);
 		void remove_mod(Client *client);
 		void set_newpw(std::string password);
+		void pw_restriction_status(bool status);
 		~channel();
 		
 };

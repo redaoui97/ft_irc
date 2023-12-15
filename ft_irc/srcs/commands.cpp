@@ -308,8 +308,17 @@ void    invite_commands(std::vector<std::string> args, Client *client)
 
 void    topic_commands(std::vector<std::string> args, Client *client)
 {
-    (void)client;
-    (void)args;
+
+    
+    if (args.size() == 2)
+    {
+        //:irc.server.com 332 your_nick #channelname :Current topic is: Discussion about programming languages
+
+    }
+    else if (args.size() == 3)
+    {
+        //:irc.server.com 332 your_nick #example :New topic for discussion
+    }
 }
 
 void    mode_commands(std::vector<std::string> args, Client *client)
@@ -318,6 +327,7 @@ void    mode_commands(std::vector<std::string> args, Client *client)
     char    t = ' ';
     char    k = ' ';
     char    o = ' ';
+    int     pf = 0;
     std::string flags;
     std::vector<std::string>::iterator it;
     
@@ -339,7 +349,16 @@ void    mode_commands(std::vector<std::string> args, Client *client)
             if (currentChar == 't')
                 t = (*it)[0];
             if (currentChar == 'k')
+            {
                 k = (*it)[0];
+                if ((*it)[0] == '+')
+                {
+                    if (o != '+')
+                        pf = 1;
+                    else
+                        pf = 2;
+                }
+            }
             if (currentChar == 'o')
                 o = (*it)[0];
         }
@@ -349,23 +368,84 @@ void    mode_commands(std::vector<std::string> args, Client *client)
         if (i == '+')
         {
             chann->set_inv_status(true);
+            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +i" + "\r\n", client);
         }
         else if (i == '-')
         {
             chann->set_inv_status(false);
+            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -i" + "\r\n", client);
         }
     }
     if (t != ' ')
     {
-        (void)t;
+        if (t == '+')
+        {
+            chann->set_topic_restriction(true);
+            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +t" + "\r\n", client);
+
+        }
+        else if (t == '-')
+        {
+            chann->set_topic_restriction(false);
+            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -t" + "\r\n", client);
+        }
     }
     if (k != ' ')
     {
-        (void)k;
+        if (k == '+')
+        {
+            chann->pw_restriction_status(true);
+            if (pf == 1 && args.size() >= 4)
+            {
+                chann->set_newpw(args.at(4));
+                send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +k " + args.at(4) + "\r\n", client);
+            }
+            else if (pf == 2 && args.size() >= 5)
+            {
+                chann->set_newpw(args.at(5));    
+                send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +k " + args.at(5) + "\r\n", client);
+            }
+        }
+        else if (k == '-')
+        {
+            chann->pw_restriction_status(false);
+            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -k" + "\r\n", client);
+        }
     }
     if (o != ' ')
     {
-        (void)o;
+        Client *newc = NULL;
+
+        if(pf == 2 && args.size() >= 4)
+        {
+            newc = (client->GetServer())->find_user_bynick(args.at(4));
+        }
+        if (pf == 1 && args.size() >= 5)
+        {
+            newc = (client->GetServer())->find_user_bynick(args.at(5));
+        }
+        if (!newc)
+            return ;
+        if (o == '+')
+        {
+            if (chann->is_mod(newc->getNickname()))
+                return ;
+            chann->add_mod(newc);
+            if (pf == 2)
+                send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +o " + args.at(4) +"\r\n", client);
+            if (pf == 1)
+                send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +o " + args.at(5) +"\r\n", client);
+        }
+        else if (o == '-')
+        {
+            if (!(chann->is_mod(newc->getNickname())))
+                return ;
+            chann->remove_mod(newc);
+            if (pf == 2)
+                send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -o " + args.at(4) +"\r\n", client);
+            if (pf == 1)
+                send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -o " + args.at(5) +"\r\n", client);
+        }
     }
 }
 
@@ -391,6 +471,7 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
         return ;
     }
 }
+
 // void quit_cmd(Client *client, std::vector<std::string> args)
 // {
 

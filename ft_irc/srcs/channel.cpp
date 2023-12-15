@@ -39,6 +39,11 @@ bool    channel::is_mod(std::string nick)
     return false; 
 }
 
+void channel::pw_restriction_status(bool status)
+{
+    m_password_restrict = status;
+}
+
 void channel::set_newpw(std::string password)
 {
     m_password = password;
