@@ -14,8 +14,8 @@ void	parse_port(std::string port)
 		}
 	}
 	port_n = std::atoi(port.c_str());
-	if (port_n < 1 || port_n > 65535) {
-		fatal_error("Invalid port!, Out of range[1-65535]");
+	if (port_n <= 1024 || port_n > 65535) {
+		fatal_error("Invalid port!, Out of range[1024-65535]");
 	}
 }
 

@@ -155,9 +155,8 @@ void    join_cmd(Client *client, std::vector<std::string> args)
             chann->add_client(client);
         }
         send_message((":" + host_name() + " 332 ", client->getNickname() + " " + args.at(1) + " :Topic: " + chann->get_topic() + "\r\n"), client);
-
-
     }
+    send_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getHostname() + " JOIN " + args.at(1) + "\r\n"), client);
     send_message((":" + host_name() + " 353 " + client->getNickname() + " = " + args.at(1) + " :@" + client->getNickname() + "\r\n"), client);
     send_message((":" + host_name() + " 366 " + client->getNickname() + " " + args.at(1) + " :End of /NAMES list" + "\r\n"), client);
 }
@@ -230,7 +229,7 @@ void    invite_commands(std::vector<std::string> args, Client *client)
 void    topic_commands(std::vector<std::string> args, Client *client)
 {
 
-    
+    (void ) client;
     if (args.size() == 2)
     {
         //:irc.server.com 332 your_nick #channelname :Current topic is: Discussion about programming languages
