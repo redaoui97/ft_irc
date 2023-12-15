@@ -1,5 +1,4 @@
-#include "client.hpp"
-
+#include "channel.hpp"
 
 channel::channel(std::string name, Client *client)
 {

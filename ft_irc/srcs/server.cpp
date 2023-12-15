@@ -1,5 +1,4 @@
 #include "../include/server.hpp"
-#include "../include/channel.hpp"
 
 Server::Server(std::string const password)
 {

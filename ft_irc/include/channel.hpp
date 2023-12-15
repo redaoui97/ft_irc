@@ -2,6 +2,7 @@
 # define CHANNEL_HPP
 
 #include "../include/irc.hpp"
+#include "../include/client.hpp"
 
 class channel
 {
