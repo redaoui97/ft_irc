@@ -61,12 +61,15 @@ void execute_commands(std::vector<std::string>args, Client* client, std::string 
     }
     else
     {
-
+        if (!(args.front()).compare("PRIVMSG"))
+        {
+            privmsg_cmd(client, args);
+        }
     }
 }
 
 //authentication commands
-void    authentication(std::vector<std::string>args, Client* client, std::string password)
+void authentication(std::vector<std::string>args, Client* client, std::string password)
 {
     if ((args.front()).compare("PASS") == 0)
         pass_cmd(client, args, password);
@@ -166,10 +169,29 @@ void pass_cmd(Client *client, std::vector<std::string> args, std::string passwor
     }
 }
 
+
 //channel commands
 void    join_cmd(Client *client, std::string channel_name)
 {
-    //(client->GetServer()).
+    (void)client;
+    (void)channel_name;
+    //(client->GetServer())
+}
+
+//other commands
+void privmsg_cmd(Client *client, std::vector<std::string> args)
+{
+    std::cout << "I was called" << std::endl;
+    if (args.size() < 2)
+    {
+        send_message((":" + host_name() + " 412 " + client->getNickname() + " :No test to send"), client);
+        return ;
+    }
+    if (client->GetServer()->client_exists(args.at(1)))
+    {
+        send_message((":" + host_name() + " 401 " + client->getNickname() + " " + args.at(1) + " :No such nick/channel"), client);
+        return ;
+    }
 }
 // void quit_cmd(Client *client, std::vector<std::string> args)
 // {

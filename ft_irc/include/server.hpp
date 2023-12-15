@@ -2,7 +2,6 @@
 # define SERVER_HPP
 
 #include "../include/irc.hpp"
-
 #ifndef MAXCLIENTS
 # define MAXCLIENTS 100
 #endif

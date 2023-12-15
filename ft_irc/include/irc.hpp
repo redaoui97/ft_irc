@@ -150,6 +150,7 @@ enum err_replies
 };
 
 class Client;
+class channel;
 //prototypes for orphan functions
 	//error functions
 void	fatal_error(std::string err_msg);
@@ -170,6 +171,7 @@ void	authentication(std::vector<std::string>args, Client* client, std::string pa
 void	pass_cmd(Client *client, std::vector<std::string> args, std::string password);
 void 	user_cmd(Client *client, std::vector<std::string> args);
 void 	nick_cmd(Client *client, std::vector<std::string> args);
+void 	privmsg_cmd(Client *client, std::vector<std::string> args);
 void 	trigger_welcome(Client *client);
 
 //util functions
