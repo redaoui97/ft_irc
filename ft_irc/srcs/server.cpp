@@ -154,6 +154,18 @@ channel* Server::find_channel(std::string name)
     return NULL; 
 }
 
+Client* Server::find_user_bynick(std::string nick)
+{
+	std::vector<Client*>::iterator it;
+    
+    for (it = clients.begin(); it != clients.end(); ++it)
+	{
+        if ((*it)->getNickname() == nick) {
+            return *it;
+        }
+    }
+	return (NULL);
+}
 Client* Server::find_user(int clientFd)
 {
 	std::vector<Client*>::iterator it;
@@ -164,7 +176,7 @@ Client* Server::find_user(int clientFd)
             return *it;
         }
     }
-    return (nullptr);
+    return (NULL);
 }
 
 void	Server::clientData(int clientFd)

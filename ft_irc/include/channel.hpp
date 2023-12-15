@@ -30,6 +30,7 @@ class channel
 		bool is_right_pw(std::string password);
 		bool require_pw();
 		bool require_invite();
+		void add_toinvite(Client *client);
 		~channel();
 		
 };

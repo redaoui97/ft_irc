@@ -46,7 +46,6 @@ std::vector<std::string> process_single_command(std::string command)
     return (command_vector);
 }
 
-
 //execute the function
 void execute_commands(std::vector<std::string>args, Client* client, std::string password)
 {
@@ -68,6 +67,10 @@ void execute_commands(std::vector<std::string>args, Client* client, std::string 
         if (!(args.front()).compare("JOIN"))
         {
             join_cmd(client, args);
+        }
+        if (!(args.front()).compare("KICK") || !(args.front()).compare("INVITE") || !(args.front()).compare("TOPIC") || !(args.front()).compare("MODE"))
+        {
+            mod_commands(args, client);
         }
         else
         {
@@ -191,12 +194,10 @@ void    join_cmd(Client *client, std::vector<std::string> args)
     {
         if (args.size() > 2)
         {
-            std::cout << "created with pw" << std::endl;
             (client->GetServer())->new_channel(args.at(1), client, args.at(2));
         }
         else if (args.size() == 2)
         {
-            std::cout << "created without pw" << std::endl;
             (client->GetServer())->new_channel(args.at(1), client, "");
         }
     }
@@ -238,6 +239,74 @@ void    join_cmd(Client *client, std::vector<std::string> args)
     }
     send_message((":" + host_name() + " 353 " + client->getNickname() + " = " + args.at(1) + " :@" + client->getNickname() + "\r\n"), client);
     send_message((":" + host_name() + " 366 " + client->getNickname() + " " + args.at(1) + " :End of /NAMES list" + "\r\n"), client);
+}
+
+void    mod_commands(std::vector<std::string> args, Client *client)
+{
+    if (!(args.front()).compare("INVITE"))
+    {
+        invite_commands(args, client);
+    }
+    (void)client;
+    (void)args;
+}
+
+void    kick_commands(std::vector<std::string> args, Client *client)
+{
+    (void)client;
+    (void)args;
+}
+
+void    invite_commands(std::vector<std::string> args, Client *client)
+{
+
+    if (args.size() < 3)
+    {
+        send_message(":" + host_name() + " " + args.at(0) + " 461 " + ":Not enough parameters" + "\r\n", client);
+        return ;
+    }
+    if (!(client->GetServer())->channel_exists(args.at(2)))
+    {
+        send_message((":" + host_name() + " 403 " + client->getNickname() + " " + args.at(2) + " :No such channel" + "\r\n"), client);
+        return ;
+    }
+
+    channel *chann = client->GetServer()->find_channel(args.at(2));
+    if (!(chann->is_mod(client->getNickname())))
+    {
+        send_message((":" + host_name() + " 482 " + client->getNickname() + " " + args.at(2) + " :You're not channel operator" + "\r\n"), client);
+        return ;
+    }
+    if (!(chann->is_member(client->getNickname())))
+    {
+        send_message((":" + host_name() + " 442 " + client->getNickname() + " " + args.at(2) + " :You're not on that channel" + "\r\n"), client);
+        return ;
+    }
+    if (chann->is_member(client->getNickname()))
+    {
+        send_message((":" + host_name() + " 443 " + client->getNickname() + " " + args.at(2) + " :is already on channel" + "\r\n"), client);
+        return ;
+    }
+    send_message(":" + client->getNickname() + "!" + client->getUsername() + client->getHostname() + " INVITE " + args.at(1) + ":" + args.at(2) + "\r\n", client);
+    Client *client2 = (client->GetServer())->find_user_bynick(args.at(1));
+   // :irc.example.com 341 receiver_nick #channel :Invite to join channel
+    if (client2)
+    {
+        send_message((":" + host_name() + " 341 " + args.at(1) + " " + args.at(2) + " :Invite to join channel" + "\r\n"), client);
+        chann->add_toinvite(client2);
+    }
+}
+
+void    topic_commands(std::vector<std::string> args, Client *client)
+{
+    (void)client;
+    (void)args;
+}
+
+void    mode_commands(std::vector<std::string> args, Client *client)
+{
+    (void)client;
+    (void)args;
 }
 
 //other commands

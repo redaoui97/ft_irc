@@ -71,6 +71,11 @@ bool    channel::is_invited(std::string nick)
     return false;
 }
 
+void channel::add_toinvite(Client *client)
+{
+    m_invited_members.push_back(client->getNickname());
+}
+
 void channel::change_topic(std::string topic)
 {
     m_topic = topic;

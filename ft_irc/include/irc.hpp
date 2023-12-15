@@ -174,6 +174,11 @@ void 	nick_cmd(Client *client, std::vector<std::string> args);
 void    join_cmd(Client *client, std::vector<std::string> args);
 void 	privmsg_cmd(Client *client, std::vector<std::string> args);
 void 	trigger_welcome(Client *client);
+void    mod_commands(std::vector<std::string> args, Client *client);
+void    kick_commands(std::vector<std::string> args, Client *client);
+void    invite_commands(std::vector<std::string> args, Client *client);
+void    topic_commands(std::vector<std::string> args, Client *client);
+void    mode_commands(std::vector<std::string> args, Client *client);
 
 //util functions
 void 	splitString(std::string input, std::string delimiter, std::queue<std::string> &result);

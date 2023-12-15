@@ -25,6 +25,7 @@ class Server
 		void	new_channel(std::string name, Client *client, std::string password);
 		Client *find_user(int clientFd);
 		channel *find_channel(std::string name);
+		Client* find_user_bynick(std::string nick);
 	
 	private:
 		int port;
