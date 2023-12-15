@@ -13,10 +13,10 @@ OBJ		= $(addprefix $(OBJ_DIR)/, $(notdir $(MAIN:=.o)))
 all: $(NAME)
 	
 $(NAME): $(OBJ) $(HEADER)
-	$(CC) $(FLAGS) $(OBJ) -o $@
+	$(CC) -g $(FLAGS) $(OBJ) -o $@
 
 $(OBJ_DIR)/%.o: srcs/%.cpp $(HEADER) | $(OBJ_DIR)
-	$(CC) $(FLAGS) -c $< -o $@
+	$(CC) -g $(FLAGS) -c $< -o $@
 
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)

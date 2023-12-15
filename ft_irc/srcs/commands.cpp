@@ -414,6 +414,7 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
         if (chann->is_member(client->getNickname()))
         {
             broadcast_message(args.at(2), chann->all_clients());
+            return ;
         }
         else
         {
@@ -433,9 +434,3 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
             send_message((":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PRIVMSG " + args.at(1) + " :" + args.at(2) + "\r\n"), receiver);
     }
 }
-//void notice_cmd();
-
-// void quit_cmd(Client *client, std::vector<std::string> args)
-// {
-
-// }

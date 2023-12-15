@@ -225,20 +225,20 @@ void	Server::clientData(int clientFd)
 		bytes = recv(clientFd, buffer, sizeof(buffer), 0);
 		if (bytes <= 0)
 		{
-			// if (bytes == 0)
-			// {
-			// 	normal_error("Client closed connection");
-			// }
-			// else if (errno == EBADF)
-			// {
-			// 	normal_error("Error: Bad file descriptor");
-			// } 
-			// else
-			// { 
-			// 	normal_error("Error occurred during Client connection");
-			// }
-			// close(clientFd);
-			clientDiscon(clientFd);
+			if (bytes == 0)
+			{
+				normal_error("Client closed connection");
+			}
+			else if (errno == EBADF)
+			{
+				normal_error("Error: Bad file descriptor");
+			} 
+			else
+			{ 
+				normal_error("Error occurred during Client connection");
+			}
+			close(clientFd);
+			//clientDiscon(clientFd);
 			return ;
 		}
 		else
@@ -350,6 +350,10 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
         else if (!(args.front()).compare("JOIN"))
         {
             join_cmd(client, args);
+        }
+		if (!(args.front()).compare("NOTICE"))
+        {
+            privmsg_cmd(client, args);
         }
         else if (!(args.front()).compare("KICK") || !(args.front()).compare("INVITE") || !(args.front()).compare("TOPIC") || !(args.front()).compare("MODE"))
         {
