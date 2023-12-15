@@ -1,6 +1,5 @@
-#include "../include/client.hpp"
-
-
+#include"../include/client.hpp"
+#include "channel.hpp"
 
 Client::Client(int clientFd, char* ip)
 {

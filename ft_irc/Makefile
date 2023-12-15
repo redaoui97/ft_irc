@@ -1,7 +1,7 @@
 NAME	= ircserv
 CC		= c++
 FLAGS	= -Iinclude -Wall -Wextra -Werror -std=c++98 
-HEADER	= include/irc.hpp include/server.hpp include/client.hpp include/channel.hpp
+HEADER	= include/irc.hpp
 
 MAIN	= $(addprefix srcs/, main server client channel errors parsing commands utils)
 SRC		= $(MAIN:=.cpp)

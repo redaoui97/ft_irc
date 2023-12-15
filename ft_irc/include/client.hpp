@@ -2,6 +2,7 @@
 # define CLIENT_HPP
 
 #include "../include/irc.hpp"
+#include "channel.hpp"
 #include "../include/server.hpp"
 
 class Client {
@@ -18,6 +19,7 @@ class Client {
 		bool		m_isauthenticated;
 		bool		m_right_password;
 		Server		*current_server;
+		std::map<std::string, channel *> m_channels;
 		
 	public:
 		Client(int clientFd, char* ip);

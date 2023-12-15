@@ -1,4 +1,6 @@
 #include "../include/server.hpp"
+#include "../include/client.hpp"
+#include "../include/irc.hpp"
 
 Server::Server(std::string const password)
 {
@@ -8,6 +10,7 @@ Server::Server(std::string const password)
 	this->server_version = "0.01v";
 	this->make_time = get_date();
 }
+	
 bool	Server::client_exists(std::string nick)
 {
 	std::vector<Client*>::iterator it;
@@ -97,11 +100,6 @@ void	Server::startListening() {
 Client* create_client(int clientFd, char *ip)
 {
     return (new Client(clientFd, ip));
-}
-
-channel* create_channel(std::string name, Client *client)
-{
-	return (new channel(name, client));
 }
 
 void Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
