@@ -9,6 +9,7 @@
 
 //additional functions 
 Client* create_client(int clientFd, char *ip);
+channel* create_channel(std::string name, Client *client);
 class Server
 {
 	public:
@@ -30,6 +31,7 @@ class Server
 		std::string	  make_time;
 		std::vector<pollfd> clientSockets;
 		std::vector<Client*> clients;
+		std::map<std::string, Channel> channels;
 		Client *find_user(int clientFd);
 		void	newClientConnections(std::vector<struct pollfd>&	clientSockets);
 

@@ -1,5 +1,6 @@
 #include "../include/server.hpp"
 #include "../include/client.hpp"
+#include "../include/channel.hpp"
 
 //preparing the input 
 void	process_command(std::string buffer, Client *client, std::string password)
@@ -13,6 +14,7 @@ void	process_command(std::string buffer, Client *client, std::string password)
 	{
 		command = commands_queue.front();
 		commands_queue.pop();
+		std::cout << "command: " << command << std::endl;
 		if (command.size())
 		{
 			prepared_command = process_single_command(command);
@@ -48,8 +50,14 @@ std::vector<std::string> process_single_command(std::string command)
 //execute the function
 void execute_commands(std::vector<std::string>args, Client* client, std::string password)
 {
+	if ((args.front()).compare("QUIT") == 0)
+		//quit_cmd(client, args);
 	if (!client->IsAuthenticated())
 		authentication(args, client, password);
+	else
+	{
+
+	}
 }
 
 //authentication commands
@@ -70,6 +78,10 @@ void	authentication(std::vector<std::string>args, Client* client, std::string pa
 		else if ((args.front()).compare("USER") == 0)
 		{
 			user_cmd(client, args);
+		}
+		else
+		{
+			send_err(client, ERR_NOTREGISTERED, ":You have not registered");
 		}
 	}
 }
@@ -123,10 +135,10 @@ void trigger_welcome(Client *client)
 {
     send_message((":" + host_name() + " 001 " + client->getNickname() + " :Welcome to the " + SERVER_NAME + " " + client->getNickname() + "!~" + client->getUsername() + "@" + client->getIp() + "\r\n"), client);
 	send_message((":" + host_name() + " 002 " + client->getNickname() + " :Your host is " + host_name() +", running version " + (client->GetServer())->get_version() + "\r\n"), client);
-	send_message((":" + host_name() + " 002 " + client->getNickname() + " This server was created " + (client->GetServer())->get_time() + " UTC" + "\r\n"), client);
+	send_message((":" + host_name() + " 003 " + client->getNickname() + " This server was created " + (client->GetServer())->get_time() + " UTC" + "\r\n"), client);
 }
 
-void	pass_cmd(Client *client, std::vector<std::string> args, std::string password)
+void pass_cmd(Client *client, std::vector<std::string> args, std::string password)
 {
 	if (args.size() != 2)
 	{
@@ -144,8 +156,12 @@ void	pass_cmd(Client *client, std::vector<std::string> args, std::string passwor
 			send_err(client, ERR_PASSWDMISMATCH, ":Password incorrect");
 		else
 		{
-			std::cout << "nice password" << std::endl;
 			client->SetRightPassword(true);
 		}
 	}
 }
+
+// void quit_cmd(Client *client, std::vector<std::string> args)
+// {
+
+// }

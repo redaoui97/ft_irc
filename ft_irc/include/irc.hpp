@@ -20,6 +20,7 @@
 #include <netdb.h>
 #include <time.h>
 
+
 #define SERVER_NAME "super_duoIRC Network"
 
 enum rpl_replies

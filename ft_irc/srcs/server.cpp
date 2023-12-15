@@ -1,6 +1,5 @@
 #include "../include/server.hpp"
-#include "../include/client.hpp"
-#include "../include/irc.hpp"
+#include "../include/channel.hpp"
 
 Server::Server(std::string const password)
 {
@@ -100,6 +99,11 @@ void	Server::startListening() {
 Client* create_client(int clientFd, char *ip)
 {
     return (new Client(clientFd, ip));
+}
+
+channel* create_channel(std::string name, Client *client)
+{
+	return (new channel(name, client));
 }
 
 void Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
