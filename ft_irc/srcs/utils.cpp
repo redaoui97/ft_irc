@@ -64,7 +64,8 @@ void broadcast_message(std::string msg, std::map<std::string, Client *> clients)
     for (std::map<std::string, Client*>::iterator it = clients.begin(); it != clients.end(); ++it)
     {
         Client* currentClient = it->second;
-        send_message(msg, currentClient);
+        if (currentClient)
+            send_message(msg, currentClient);
     }
 }
 

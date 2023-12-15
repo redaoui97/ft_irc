@@ -90,8 +90,8 @@ void Server::clientDiscon( int clientFd )
 	this->buffers.erase(clientFd);
 	for (size_t i = 0; i < this->clients.size(); i++)
 	{
-		if (this->clients[i]->getClientFd() == clientFd)
-			this->clients.erase(this->clients.begin() + i);
+		if ((this->clients[i])->getClientFd() == clientFd)
+			(this->clients).erase(this->clients.begin() + i);
 	}
 	for (size_t i = 0; i < this->clientSockets.size(); i++)
 	{
@@ -317,6 +317,7 @@ void   Server::process_command(std::string buffer, Client *client, std::string p
             if (proc_cmd.find('\r') != std::string::npos)
                 proc_cmd = proc_cmd.substr(0, proc_cmd.find('\r'));
 			prepared_command = process_single_command(proc_cmd);
+			std::cout << "command: " << proc_cmd << std::endl;
             execute_commands(prepared_command, client, password);
         }
 		cmd.clear();
@@ -338,22 +339,27 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
     }
     else
     {
+		if (!(args.front()).compare("NICK"))
+        {
+            nick_cmd(client, args);
+        }
         if (!(args.front()).compare("PRIVMSG"))
         {
             privmsg_cmd(client, args);
         }
-        if (!(args.front()).compare("JOIN"))
+        else if (!(args.front()).compare("JOIN"))
         {
             join_cmd(client, args);
         }
-        if (!(args.front()).compare("KICK") || !(args.front()).compare("INVITE") || !(args.front()).compare("TOPIC") || !(args.front()).compare("MODE"))
+        else if (!(args.front()).compare("KICK") || !(args.front()).compare("INVITE") || !(args.front()).compare("TOPIC") || !(args.front()).compare("MODE"))
         {
             mod_commands(args, client);
         }
-        else
+        else 
         {
             std::cout << "unknown command" << std::endl;
-            send_message((":" + host_name() + " 421 " + client->getNickname() + " " + args.at(0) + " :Unkown command", + "\r\n"), client);
+			//:irc.example.com 421 your_nick COMMAND :Unknown command
+            send_message((":" + host_name() + " 421 " + client->getNickname() + " " + args.at(0) + " :Unknown command" + "\r\n"), client);
             return ;
         }
     }

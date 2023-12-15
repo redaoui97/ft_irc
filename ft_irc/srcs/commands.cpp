@@ -125,6 +125,8 @@ void    join_cmd(Client *client, std::vector<std::string> args)
     else
     {
         channel *chann = (client->GetServer())->find_channel(args.at(1));
+        if (!chann)
+            return ;
         if (chann->is_member(client->getNickname()))
         {
             send_message((":" + host_name() + " 443 " + client->getNickname() + " " + args.at(1) + " :is already on channel" + "\r\n"), client);
@@ -156,7 +158,11 @@ void    join_cmd(Client *client, std::vector<std::string> args)
         }
         send_message((":" + host_name() + " 332 ", client->getNickname() + " " + args.at(1) + " :Topic: " + chann->get_topic() + "\r\n"), client);
     }
-    send_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getHostname() + " JOIN " + args.at(1) + "\r\n"), client);
+    channel *chann = client->GetServer()->find_channel(args.at(1));
+    if (chann)
+    {
+        broadcast_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getHostname() + " JOIN " + args.at(1) + "\r\n"), chann->all_clients());
+    }
     send_message((":" + host_name() + " 353 " + client->getNickname() + " = " + args.at(1) + " :@" + client->getNickname() + "\r\n"), client);
     send_message((":" + host_name() + " 366 " + client->getNickname() + " " + args.at(1) + " :End of /NAMES list" + "\r\n"), client);
 }
@@ -169,15 +175,15 @@ void    mod_commands(std::vector<std::string> args, Client *client)
     }
     if (!(args.front()).compare("KICK"))
     {
-        invite_commands(args, client);
+        kick_commands(args, client);
     }
     if (!(args.front()).compare("TOPIC"))
     {
-        invite_commands(args, client);
+        topic_commands(args, client);
     }
     if (!(args.front()).compare("MODE"))
     {
-        invite_commands(args, client);
+        mode_commands(args, client);
     }
 }
 
@@ -222,21 +228,24 @@ void    invite_commands(std::vector<std::string> args, Client *client)
 
 void    kick_commands(std::vector<std::string> args, Client *client)
 {
-    if (args.size() < 2)
+    if (args.size() < 3 || (args.at(1)).empty() || (args.at(2)).empty())
     {
-        send_message(":" + host_name() + " " + args.at(0) + " 461 " + ":Not enough parameters" + "\r\n", client);
+        send_message(":" + host_name() +  " 461 " + client->getNickname() + " KICK :Not enough parameters" + "\r\n", client);
         return ;
     }
-    send_message((":" +  host_name() + " 312 " + client->getNickname() + args.at(1) + " " + args.at(2) + " Kicked by operator" +"\r\n"), client);
-
     Client *clt = (client->GetServer())->find_user_bynick(args.at(2));
     if (!clt)
         return ;
     channel *chann = (client->GetServer())->find_channel(args.at(1));
+    if (!chann)
+        return ;
+    if (chann->is_mod(clt->getNickname()))
+        return ;
+    send_message((":" +  host_name() + " 312 " + client->getNickname() + args.at(1) + " " + args.at(2) + " Kicked by operator" +"\r\n"), client);
     chann->delete_client(clt);
     if (chann->is_mod(clt->getNickname()))
         chann->remove_mod(clt);
-    send_message((":" + host_name() + " 312 " + client->getNickname() + " " + args.at(1) + " " + clt->getNickname() + " :You were kicked by operator" + "\r\n"), client);
+    send_message((":" + host_name() + " 312 " + client->getNickname() + " " + args.at(1) + " " + clt->getNickname() + " :You were kicked by operator" + "\r\n"), clt);
 }
 
 void    topic_commands(std::vector<std::string> args, Client *client)
@@ -385,12 +394,14 @@ void    mode_commands(std::vector<std::string> args, Client *client)
 //other commands
 void privmsg_cmd(Client *client, std::vector<std::string> args)
 {
+    std::cout << "privmsg exec: nmbr cmds: " << args.size() << std::endl;
     if (args.size() < 3)
     {
+        std::cout << (":" + host_name() + " 412 " + client->getNickname() + " :No text to send" + "\r\n") << std::endl;
         send_message((":" + host_name() + " 412 " + client->getNickname() + " :No text to send" + "\r\n"), client);
         return ;
     }
-    if (args.at(1).at(0) == '#')
+    if ((args.at(1)).at(0) == '#')
     {
         if (!(client->GetServer())->channel_exists(args.at(1)))
         {
@@ -398,6 +409,8 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
             return ;
         }
         channel *chann = (client->GetServer())->find_channel(args.at(1));
+        if (!chann)
+            return ;
         if (chann->is_member(client->getNickname()))
         {
             broadcast_message(args.at(2), chann->all_clients());
@@ -412,6 +425,12 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
     {
         send_message((":" + host_name() + " 401 " + client->getNickname() + " " + args.at(1) + " :No such nick/channel"), client);
         return ;
+    }
+    else
+    {
+        Client *receiver = (client->GetServer())->find_user_bynick(args.at(1));
+        if (receiver)
+            send_message((":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PRIVMSG " + args.at(1) + " :" + args.at(2) + "\r\n"), receiver);
     }
 }
 //void notice_cmd();
