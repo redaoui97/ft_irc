@@ -61,9 +61,17 @@ void execute_commands(std::vector<std::string>args, Client* client, std::string 
     }
     else
     {
+        std::cout << "executing command while authenticated" << std::endl;
         if (!(args.front()).compare("PRIVMSG"))
         {
+            std::cout << "supposed to execute privmsg" << std::endl;
             privmsg_cmd(client, args);
+        }
+        else
+        {
+            std::cout << "unknown command" << std::endl;
+            send_message((":" + host_name() + " 421 " + client->getNickname() + " " + args.at(0) + " :Unkown command"), client);
+            return ;
         }
     }
 }
@@ -181,13 +189,13 @@ void    join_cmd(Client *client, std::string channel_name)
 //other commands
 void privmsg_cmd(Client *client, std::vector<std::string> args)
 {
-    std::cout << "I was called" << std::endl;
     if (args.size() < 2)
     {
-        send_message((":" + host_name() + " 412 " + client->getNickname() + " :No test to send"), client);
+        send_message((":" + host_name() + " 412 " + client->getNickname() + " :No text to send"), client);
         return ;
     }
-    if (client->GetServer()->client_exists(args.at(1)))
+    //check channels before checking users
+    if (!(client->GetServer())->client_exists(args.at(1)))
     {
         send_message((":" + host_name() + " 401 " + client->getNickname() + " " + args.at(1) + " :No such nick/channel"), client);
         return ;
