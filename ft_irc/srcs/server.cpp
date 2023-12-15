@@ -8,8 +8,7 @@ Server::Server(std::string const password)
 	this->port = -1;
 	this->password = password;
 	this->server_version = "0.01v";
-	time_t now = time(0);
-	this->make_time = to_String(ctime(&now));
+	this->make_time = get_date();
 }
 	
 bool	Server::client_exists(std::string nick)
@@ -195,5 +194,14 @@ Server::~Server()
 		close(serverFd);
 	for (std::vector<Client*>::iterator it = clients.begin(); it != clients.end(); ++it)
         delete *it;
+}
+std::string Server::get_date()
+{
+	return (make_time);
+}
+
+std::string Server::get_version()
+{
+	return (server_version);
 }
 //take the commands and parse them then execute

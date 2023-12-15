@@ -13,6 +13,7 @@ void	process_command(std::string buffer, Client *client, std::string password)
 	{
 		command = commands_queue.front();
 		commands_queue.pop();
+		std::cout << "command: " << command << std::endl;
 		if (command.size())
 		{
 			prepared_command = process_single_command(command);
@@ -41,7 +42,6 @@ std::vector<std::string> process_single_command(std::string command)
             command_vector.push_back(token);
         }
     }
-
     return (command_vector);
 }
 
@@ -122,8 +122,8 @@ void user_cmd(Client *client, std::vector<std::string> args)
 
 void trigger_welcome(Client *client)
 {
-    send_message(":" + host_name() + " 001 " + client->getNickname() + ":Welcome to the " + SERVER_NAME + " " +  + "\r\n", client);
-
+    send_message((":" + host_name() + " 001 " + client->getNickname() + " :Welcome to the " + SERVER_NAME + " " + client->getNickname() + "!~" + client->getUsername() + "@" + client->getIp() + "\r\n"), client);
+	send_message((":" + host_name() + " 002 " + client->getNickname() + " :Your host is " + host_name() +", running version " + (client->GetServer())->get_version() + "\r\n"), client);
 }
 
 void	pass_cmd(Client *client, std::vector<std::string> args, std::string password)

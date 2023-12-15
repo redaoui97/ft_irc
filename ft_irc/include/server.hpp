@@ -18,6 +18,8 @@ class Server
 		void	startListening();
 		void	clientData(int clientFd);
 		bool	client_exists(std::string nick);
+		std::string get_version();
+		std::string get_date();
 	
 	private:
 		int port;
@@ -26,7 +28,6 @@ class Server
 		struct pollfd serverSocket;
 		std::string	  server_version;
 		std::string	  make_time;
-		std::string   make_date;
 		std::vector<pollfd> clientSockets;
 		std::vector<Client*> clients;
 		Client *find_user(int clientFd);

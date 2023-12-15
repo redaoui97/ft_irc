@@ -39,7 +39,7 @@ bool	valid_nickname(std::string nickname)
 {
 	if (isdigit(nickname[0]) || nickname[0] == ' ' || nickname[0] == '#' || nickname[0] == ':')
         return (false);
-	for(int i = 0;i < nickname.size();i++)
+	for(int i = 0; i < (int)nickname.size(); i++)
 	{
 		if (!isalnum(nickname[i]) && nickname[i] != '[' && nickname[i] != ']' && nickname[i] != '{' && nickname[i] != '}' && nickname[i] != '\\' && nickname[i] != '|' && nickname[i] != '@')
 				return (false);

@@ -28,6 +28,18 @@ void	clear_buffer(char *buffer, int size)
 	}
 }
 
+std::string get_date()
+{
+    char buffer[80];
+    time_t rawTime;
+    struct tm* timeInfo;
+
+    time(&rawTime);
+    timeInfo = localtime(&rawTime);
+    strftime(buffer, sizeof(buffer), "%c %Z", timeInfo);
+    return (buffer);
+}
+
 std::string	to_String(int n)
 {
 	std::stringstream	ss;

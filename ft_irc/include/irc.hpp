@@ -20,7 +20,7 @@
 #include <netdb.h>
 #include <time.h>
 
-#define SERVER_NAME "super_duoIRC"
+#define SERVER_NAME "super_duoIRC Network"
 
 enum rpl_replies
 {
@@ -178,5 +178,6 @@ void	clear_buffer(char *buffer, int size);
 std::string	to_String(int n);
 void 	send_message(std::string msg, Client *client);
 std::string host_name();
+std::string get_date();
 void    send_err(Client *client,  err_replies rep, std::string additional_message);
 #endif
