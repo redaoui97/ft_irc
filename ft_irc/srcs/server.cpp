@@ -9,7 +9,6 @@ Server::Server(std::string const password)
 	this->server_version = "0.01v";
 	this->make_time = get_date();
 }
-	
 bool	Server::client_exists(std::string nick)
 {
 	std::vector<Client*>::iterator it;
