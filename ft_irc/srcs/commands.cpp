@@ -191,16 +191,23 @@ void    join_cmd(Client *client, std::vector<std::string> args)
     {
         if (args.size() > 2)
         {
+            std::cout << "created with pw" << std::endl;
             (client->GetServer())->new_channel(args.at(1), client, args.at(2));
         }
         else if (args.size() == 2)
         {
+            std::cout << "created without pw" << std::endl;
             (client->GetServer())->new_channel(args.at(1), client, "");
         }
     }
     else
     {
         channel *chann = client->GetServer()->find_channel(args.at(1));
+        if (chann->is_member(client->getNickname()))
+        {
+            send_message((":" + host_name() + " 443 " + client->getNickname() + " " + args.at(1) + " :is already on channel" + "\r\n"), client);
+            return ;
+        }
         if (chann->require_invite())
         {
             if (!(chann->is_invited(client->getNickname())))
@@ -226,9 +233,11 @@ void    join_cmd(Client *client, std::vector<std::string> args)
             chann->add_client(client);
         }
         send_message((":" + host_name() + " 332 ", client->getNickname() + " " + args.at(1) + " :Topic: " + chann->get_topic() + "\r\n"), client);
+
+
     }
-    send_message((":" + host_name() + " 353 ", client->getNickname() + " = " + args.at(1) + " :@" + client->getNickname() + "\r\n"), client);
-    send_message((":" + host_name() + " 366 ", client->getNickname() + " " + args.at(1) + " :End of /NAMES list" + "\r\n"), client);
+    send_message((":" + host_name() + " 353 " + client->getNickname() + " = " + args.at(1) + " :@" + client->getNickname() + "\r\n"), client);
+    send_message((":" + host_name() + " 366 " + client->getNickname() + " " + args.at(1) + " :End of /NAMES list" + "\r\n"), client);
 }
 
 //other commands

@@ -84,6 +84,7 @@ std::string channel::get_topic()
 void channel::add_client(Client *client)
 {
     m_members.insert(std::make_pair(client->getNickname(), client));
+    std::cout << "client added: " << client->getNickname() << " on channel:" << this->m_name << " user count: " << m_members.size() << std::endl;
 }
 
 void channel::add_mod(Client *client)
