@@ -25,6 +25,17 @@ bool	Server::client_exists(std::string nick)
 	return (false);
 }
 
+bool	Server::channel_exists(std::string chann)
+{
+	std::map<std::string, channel*>::iterator it = channels.find(chann);
+
+	if (channels.empty())
+		return (false);
+	if (it != channels.end())
+		return (true);
+	return (false);
+}
+
 bool	Server::initializeServer(int port)
 {
 	struct sockaddr_in ServerAddr;
@@ -132,6 +143,17 @@ void Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
     }
 }
 
+channel* Server::find_channel(std::string name)
+{
+	for (std::map<std::string, channel*>::const_iterator it = channels.begin(); it != channels.end(); ++it) {
+        if (it->first == name)
+		{
+            return it->second;
+        }
+    }
+    return NULL; 
+}
+
 Client* Server::find_user(int clientFd)
 {
 	std::vector<Client*>::iterator it;
@@ -188,12 +210,29 @@ void	Server::clientData(int clientFd)
 	} while (bytes == 512);
 }
 
+void	Server::new_channel(std::string name, Client *client, std::string password)
+{
+	channel *chann = create_channel(name, client, password);
+
+	channels.insert(std::make_pair(name, chann));
+}
+
+channel	*create_channel(std::string name, Client *client, std::string password)
+{
+	return (new channel(name, client, password));
+}
+
 Server::~Server()
 {
 	if(serverFd != -1)
 		close(serverFd);
 	for (std::vector<Client*>::iterator it = clients.begin(); it != clients.end(); ++it)
         delete *it;
+	for (std::map<std::string, channel *>::iterator it = channels.begin(); it != channels.end(); ++it) {
+        delete it->second; 
+    }
+	channels.clear();
+	clients.clear();
 }
 std::string Server::get_time()
 {

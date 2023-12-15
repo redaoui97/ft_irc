@@ -171,6 +171,7 @@ void	authentication(std::vector<std::string>args, Client* client, std::string pa
 void	pass_cmd(Client *client, std::vector<std::string> args, std::string password);
 void 	user_cmd(Client *client, std::vector<std::string> args);
 void 	nick_cmd(Client *client, std::vector<std::string> args);
+void    join_cmd(Client *client, std::vector<std::string> args);
 void 	privmsg_cmd(Client *client, std::vector<std::string> args);
 void 	trigger_welcome(Client *client);
 

@@ -8,6 +8,8 @@
 
 //additional functions 
 Client* create_client(int clientFd, char *ip);
+channel	*create_channel(std::string name, Client *client, std::string password);
+
 class Server
 {
 	public:
@@ -17,8 +19,12 @@ class Server
 		void	startListening();
 		void	clientData(int clientFd);
 		bool	client_exists(std::string nick);
+		bool	channel_exists(std::string channel);
 		std::string get_version();
 		std::string get_time();
+		void	new_channel(std::string name, Client *client, std::string password);
+		Client *find_user(int clientFd);
+		channel *find_channel(std::string name);
 	
 	private:
 		int port;
@@ -30,7 +36,6 @@ class Server
 		std::vector<pollfd> clientSockets;
 		std::vector<Client*> clients;
 		std::map<std::string, channel *> channels;
-		Client *find_user(int clientFd);
 		void	newClientConnections(std::vector<struct pollfd>&	clientSockets);
 
 

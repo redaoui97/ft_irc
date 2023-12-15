@@ -61,16 +61,18 @@ void execute_commands(std::vector<std::string>args, Client* client, std::string 
     }
     else
     {
-        std::cout << "executing command while authenticated" << std::endl;
         if (!(args.front()).compare("PRIVMSG"))
         {
-            std::cout << "supposed to execute privmsg" << std::endl;
             privmsg_cmd(client, args);
+        }
+        if (!(args.front()).compare("JOIN"))
+        {
+            join_cmd(client, args);
         }
         else
         {
             std::cout << "unknown command" << std::endl;
-            send_message((":" + host_name() + " 421 " + client->getNickname() + " " + args.at(0) + " :Unkown command"), client);
+            send_message((":" + host_name() + " 421 " + client->getNickname() + " " + args.at(0) + " :Unkown command", + "\r\n"), client);
             return ;
         }
     }
@@ -122,7 +124,7 @@ void nick_cmd(Client *client, std::vector<std::string> args)
     //I haven't tested this yet. Test it after authentication
     if (client->IsAuthenticated())
     {
-        send_message(":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getIp() + ".ip NICK :" +args.at(1), client);
+        send_message(":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getIp() + ".ip NICK :" +args.at(1) + "\r\n", client);
     }
     client->setNickname(args.at(1));
 }
@@ -177,13 +179,56 @@ void pass_cmd(Client *client, std::vector<std::string> args, std::string passwor
     }
 }
 
-
 //channel commands
-void    join_cmd(Client *client, std::string channel_name)
+void    join_cmd(Client *client, std::vector<std::string> args)
 {
-    (void)client;
-    (void)channel_name;
-    //(client->GetServer())
+    if (args.size() < 2 || ((args.at(1)).compare("#") == 0))
+    {
+        send_message((":" + host_name() + " 461 " + client->getNickname() + " JOIN :Not enough parameters" + "\r\n"), client);
+        return ;
+    }
+    if (!(client->GetServer()->channel_exists(args.at(1))))
+    {
+        if (args.size() > 2)
+        {
+            (client->GetServer())->new_channel(args.at(1), client, args.at(2));
+        }
+        else if (args.size() == 2)
+        {
+            (client->GetServer())->new_channel(args.at(1), client, "");
+        }
+    }
+    else
+    {
+        channel *chann = client->GetServer()->find_channel(args.at(1));
+        if (chann->require_invite())
+        {
+            if (!(chann->is_invited(client->getNickname())))
+            {
+                send_message((":" + host_name() + " 473 " + client->getNickname() + " " + args.at(1) + " :Cannot join channel" + "\r\n"),client);
+                return ;
+            }
+        }
+        if (chann->require_pw())
+        {
+            if (args.size() > 2 && chann->is_right_pw(args.at(2)))
+            {
+                chann->add_client(client);
+            }
+            else
+            {
+                send_message((":" + host_name() + " 475 " + client->getNickname() + " " + args.at(1) + " :Cannot join channel" + "\r\n"),client);
+                return ;
+            }
+        }
+        else
+        {
+            chann->add_client(client);
+        }
+        send_message((":" + host_name() + " 332 ", client->getNickname() + " " + args.at(1) + " :Topic: " + chann->get_topic() + "\r\n"), client);
+    }
+    send_message((":" + host_name() + " 353 ", client->getNickname() + " = " + args.at(1) + " :@" + client->getNickname() + "\r\n"), client);
+    send_message((":" + host_name() + " 366 ", client->getNickname() + " " + args.at(1) + " :End of /NAMES list" + "\r\n"), client);
 }
 
 //other commands
@@ -191,10 +236,17 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
 {
     if (args.size() < 2)
     {
-        send_message((":" + host_name() + " 412 " + client->getNickname() + " :No text to send"), client);
+        send_message((":" + host_name() + " 412 " + client->getNickname() + " :No text to send" + "\r\n"), client);
         return ;
     }
-    //check channels before checking users
+    if (args.at(1).at(0) == '#')
+    {
+        if (!(client->GetServer())->channel_exists(args.at(1)))
+        {
+            send_message((":" + host_name() + " 403 " + client->getNickname() + " " + args.at(1) + " :No such channel" + "\r\n"), client);
+            return ;
+        }
+    }
     if (!(client->GetServer())->client_exists(args.at(1)))
     {
         send_message((":" + host_name() + " 401 " + client->getNickname() + " " + args.at(1) + " :No such nick/channel"), client);
