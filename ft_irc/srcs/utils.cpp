@@ -100,6 +100,9 @@ void    send_err(Client *client,  err_replies rep, std::string additional_messag
         case ERR_ERRONEUSNICKNAME:
             message = (":" + host_name() + " 432 * " + additional_message + "\r\n");
             break;
+        case ERR_NOTREGISTERED:
+            message = (":" + host_name() + " 451 * " + additional_message + "\r\n");
+            break;
         default :
             message = "hh";
             break;

@@ -30,6 +30,7 @@ class Server
 		std::string	  make_time;
 		std::vector<pollfd> clientSockets;
 		std::vector<Client*> clients;
+		std::map<std::string, channel *> channels;
 		Client *find_user(int clientFd);
 		void	newClientConnections(std::vector<struct pollfd>&	clientSockets);
 

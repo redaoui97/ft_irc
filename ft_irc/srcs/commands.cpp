@@ -50,14 +50,19 @@ std::vector<std::string> process_single_command(std::string command)
 //execute the function
 void execute_commands(std::vector<std::string>args, Client* client, std::string password)
 {
-    if ((args.front()).compare("QUIT") == 0)
+    // if ((args.front()).compare("QUIT") == 0)
         //quit_cmd(client, args);
     if (!client->IsAuthenticated())
-        authentication(args, client, password);
-    // else
-    // {
+    {
+        if (!(args.front()).compare("PASS") || !(args.front()).compare("NICK") || !(args.front()).compare("USER"))
+            authentication(args, client, password);
+        else
+            send_err(client, ERR_NOTREGISTERED, ":You have not registered");
+    }
+    else
+    {
 
-    // }
+    }
 }
 
 //authentication commands
@@ -161,6 +166,11 @@ void pass_cmd(Client *client, std::vector<std::string> args, std::string passwor
     }
 }
 
+//channel commands
+void    join_cmd(Client *client, std::string channel_name)
+{
+    //(client->GetServer()).
+}
 // void quit_cmd(Client *client, std::vector<std::string> args)
 // {
 
