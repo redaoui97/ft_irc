@@ -19,7 +19,7 @@ class Server
 		void	clientData(int clientFd);
 		bool	client_exists(std::string nick);
 		std::string get_version();
-		std::string get_date();
+		std::string get_time();
 	
 	private:
 		int port;

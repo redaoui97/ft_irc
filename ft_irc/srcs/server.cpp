@@ -195,7 +195,7 @@ Server::~Server()
 	for (std::vector<Client*>::iterator it = clients.begin(); it != clients.end(); ++it)
         delete *it;
 }
-std::string Server::get_date()
+std::string Server::get_time()
 {
 	return (make_time);
 }
