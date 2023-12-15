@@ -15,7 +15,8 @@ class channel
 		std::vector<std::string> m_invited_members;
 		bool		m_invite_only;
 		bool		m_password_restrict;
-	
+		bool		m_topic_restricted;
+		
 	public:
 		channel(std::string name, Client *client, std::string password);
 		void change_topic(std::string topic);
@@ -31,6 +32,10 @@ class channel
 		bool require_pw();
 		bool require_invite();
 		void add_toinvite(Client *client);
+		void set_inv_status(bool status);
+		void set_topic_restriction(bool status);
+		void remove_mod(Client *client);
+		void set_newpw(std::string password);
 		~channel();
 		
 };

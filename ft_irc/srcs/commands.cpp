@@ -247,8 +247,18 @@ void    mod_commands(std::vector<std::string> args, Client *client)
     {
         invite_commands(args, client);
     }
-    (void)client;
-    (void)args;
+    if (!(args.front()).compare("KICK"))
+    {
+        invite_commands(args, client);
+    }
+    if (!(args.front()).compare("TOPIC"))
+    {
+        invite_commands(args, client);
+    }
+    if (!(args.front()).compare("MODE"))
+    {
+        invite_commands(args, client);
+    }
 }
 
 void    kick_commands(std::vector<std::string> args, Client *client)
@@ -289,7 +299,6 @@ void    invite_commands(std::vector<std::string> args, Client *client)
     }
     send_message(":" + client->getNickname() + "!" + client->getUsername() + client->getHostname() + " INVITE " + args.at(1) + ":" + args.at(2) + "\r\n", client);
     Client *client2 = (client->GetServer())->find_user_bynick(args.at(1));
-   // :irc.example.com 341 receiver_nick #channel :Invite to join channel
     if (client2)
     {
         send_message((":" + host_name() + " 341 " + args.at(1) + " " + args.at(2) + " :Invite to join channel" + "\r\n"), client);
@@ -305,8 +314,59 @@ void    topic_commands(std::vector<std::string> args, Client *client)
 
 void    mode_commands(std::vector<std::string> args, Client *client)
 {
-    (void)client;
-    (void)args;
+    char    i = ' ';
+    char    t = ' ';
+    char    k = ' ';
+    char    o = ' ';
+    std::string flags;
+    std::vector<std::string>::iterator it;
+    
+    channel *chann = client->GetServer()->find_channel(args.at(1));
+    if (!chann->is_mod(client->getNickname()))
+    {
+        send_message((":" + host_name() + " 482 " + client->getNickname() + " " + args.at(2) + " :You're not channel operator" + "\r\n"), client);
+        return ;
+    }
+    for (it = args.begin(); it != args.end(); ++it)
+    {
+        if ((*it)[0] != '+' && (*it)[0] != '-')
+            continue ;
+        for (size_t i = 0; i < (*it).length(); ++i)
+        {
+            char currentChar = (*it)[i];
+            if (currentChar == 'i')
+                i = (*it)[0];
+            if (currentChar == 't')
+                t = (*it)[0];
+            if (currentChar == 'k')
+                k = (*it)[0];
+            if (currentChar == 'o')
+                o = (*it)[0];
+        }
+    }
+    if (i != ' ')
+    {
+        if (i == '+')
+        {
+            chann->set_inv_status(true);
+        }
+        else if (i == '-')
+        {
+            chann->set_inv_status(false);
+        }
+    }
+    if (t != ' ')
+    {
+        (void)t;
+    }
+    if (k != ' ')
+    {
+        (void)k;
+    }
+    if (o != ' ')
+    {
+        (void)o;
+    }
 }
 
 //other commands
@@ -335,3 +395,4 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
 // {
 
 // }
+//void notice_cmd();
