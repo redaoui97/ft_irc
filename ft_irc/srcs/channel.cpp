@@ -12,8 +12,19 @@ channel::channel(std::string name, Client *client, std::string password)
     m_name = name;
     m_topic= "";
     m_invite_only = false;
+    m_topic_restricted = true;
     add_mod(client);
     add_client(client);
+}
+
+void channel::set_topic_restriction(bool status)
+{
+    m_topic_restricted = status;
+}
+
+void channel::remove_mod(Client *client)
+{
+    m_moderators.erase(client->getNickname());
 }
 
 bool    channel::is_mod(std::string nick)
@@ -26,6 +37,16 @@ bool    channel::is_mod(std::string nick)
         }
     }
     return false; 
+}
+
+void channel::pw_restriction_status(bool status)
+{
+    m_password_restrict = status;
+}
+
+void channel::set_newpw(std::string password)
+{
+    m_password = password;
 }
 
 bool    channel::require_pw()
@@ -71,6 +92,10 @@ bool    channel::is_invited(std::string nick)
     return false;
 }
 
+void channel::set_inv_status(bool status)
+{
+    m_invite_only = status;
+}
 void channel::add_toinvite(Client *client)
 {
     m_invited_members.push_back(client->getNickname());
