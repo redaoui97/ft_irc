@@ -131,6 +131,10 @@ void channel::delete_mod(Client *client)
     m_moderators.erase(client->getNickname());
 }
 
+std::map<std::string, Client *> channel::all_clients()
+{
+    return (m_members);
+}
 channel::~channel()
 {
     std::cout << "Channel deleted!" << std::endl;

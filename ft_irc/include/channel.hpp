@@ -37,6 +37,7 @@ class channel
 		void remove_mod(Client *client);
 		void set_newpw(std::string password);
 		void pw_restriction_status(bool status);
+		std::map<std::string, Client *> all_clients();
 		~channel();
 		
 };

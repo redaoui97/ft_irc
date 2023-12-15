@@ -177,10 +177,11 @@ void    topic_commands(std::vector<std::string> args, Client *client);
 void    mode_commands(std::vector<std::string> args, Client *client);
 
 //util functions
-void	clear_buffer(char *buffer, int size);
 std::string	to_String(int n);
-void 	send_message(std::string msg, Client *client);
 std::string host_name();
 std::string get_date();
-void    send_err(Client *client,  err_replies rep, std::string additional_message);
+void		clear_buffer(char *buffer, int size);
+void 		send_message(std::string msg, Client *client);
+void 		broadcast_message(std::string msg, std::map<std::string, Client *> clients);
+void    	send_err(Client *client,  err_replies rep, std::string additional_message);
 #endif

@@ -124,7 +124,7 @@ void    join_cmd(Client *client, std::vector<std::string> args)
     }
     else
     {
-        channel *chann = client->GetServer()->find_channel(args.at(1));
+        channel *chann = (client->GetServer())->find_channel(args.at(1));
         if (chann->is_member(client->getNickname()))
         {
             send_message((":" + host_name() + " 443 " + client->getNickname() + " " + args.at(1) + " :is already on channel" + "\r\n"), client);
@@ -181,12 +181,6 @@ void    mod_commands(std::vector<std::string> args, Client *client)
     }
 }
 
-void    kick_commands(std::vector<std::string> args, Client *client)
-{
-    (void)client;
-    (void)args;
-}
-
 void    invite_commands(std::vector<std::string> args, Client *client)
 {
 
@@ -226,18 +220,37 @@ void    invite_commands(std::vector<std::string> args, Client *client)
     }
 }
 
+void    kick_commands(std::vector<std::string> args, Client *client)
+{
+    if (args.size() < 2)
+    {
+        send_message(":" + host_name() + " " + args.at(0) + " 461 " + ":Not enough parameters" + "\r\n", client);
+        return ;
+    }
+    send_message((":" +  host_name() + " 312 " + client->getNickname() + args.at(1) + " " + args.at(2) + " Kicked by operator" +"\r\n"), client);
+
+    Client *clt = (client->GetServer())->find_user_bynick(args.at(2));
+    if (!clt)
+        return ;
+    channel *chann = (client->GetServer())->find_channel(args.at(1));
+    chann->delete_client(clt);
+    if (chann->is_mod(clt->getNickname()))
+        chann->remove_mod(clt);
+    send_message((":" + host_name() + " 312 " + client->getNickname() + " " + args.at(1) + " " + clt->getNickname() + " :You were kicked by operator" + "\r\n"), client);
+}
+
 void    topic_commands(std::vector<std::string> args, Client *client)
 {
+    channel *chann = client->GetServer()->find_channel(args.at(1));
 
-    (void ) client;
     if (args.size() == 2)
     {
-        //:irc.server.com 332 your_nick #channelname :Current topic is: Discussion about programming languages
-
+        send_message((":" + host_name() + " 332 " + client->getNickname() + " " + args.at(1) + " Topic:" + chann->get_topic() + "\r\n"),client);
     }
     else if (args.size() == 3)
     {
-        //:irc.server.com 332 your_nick #example :New topic for discussion
+        chann->change_topic(args.at(2));
+        send_message((":" + host_name() + " 332 " + client->getNickname() + " " + args.at(1) + " Topic:" + chann->get_topic() + "\r\n"),client);
     }
 }
 
@@ -372,7 +385,7 @@ void    mode_commands(std::vector<std::string> args, Client *client)
 //other commands
 void privmsg_cmd(Client *client, std::vector<std::string> args)
 {
-    if (args.size() < 2)
+    if (args.size() < 3)
     {
         send_message((":" + host_name() + " 412 " + client->getNickname() + " :No text to send" + "\r\n"), client);
         return ;
@@ -384,6 +397,16 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
             send_message((":" + host_name() + " 403 " + client->getNickname() + " " + args.at(1) + " :No such channel" + "\r\n"), client);
             return ;
         }
+        channel *chann = (client->GetServer())->find_channel(args.at(1));
+        if (chann->is_member(client->getNickname()))
+        {
+            broadcast_message(args.at(2), chann->all_clients());
+        }
+        else
+        {
+            send_message((":" + host_name() + " 442 " + client->getNickname() + " " + args.at(1) + " :You're not on that channel" + "\r\n"), client);
+            return ;
+        }
     }
     if (!(client->GetServer())->client_exists(args.at(1)))
     {
@@ -391,9 +414,9 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
         return ;
     }
 }
+//void notice_cmd();
 
 // void quit_cmd(Client *client, std::vector<std::string> args)
 // {
 
 // }
-//void notice_cmd();
