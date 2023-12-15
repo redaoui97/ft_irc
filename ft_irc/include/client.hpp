@@ -21,6 +21,7 @@ class Client {
 		Server		*current_server;
 		std::map<std::string, channel *> m_channels;
 		
+		
 	public:
 		Client(int clientFd, char* ip);
 		~Client();

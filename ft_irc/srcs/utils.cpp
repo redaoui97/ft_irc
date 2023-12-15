@@ -2,20 +2,6 @@
 #include "../include/client.hpp"
 #include "../include/irc.hpp"
 
-void splitString(std::string input, std::string delimiter, std::queue<std::string> &result)
-{
-    size_t start = 0;
-    size_t end = input.find(delimiter);
-
-    while (end != std::string::npos)
-    {
-        result.push(input.substr(start, end - start));
-        start = end + delimiter.length();
-        end = input.find(delimiter, start);
-    }
-    result.push(input.substr(start));
-}
-
 void	clear_buffer(char *buffer, int size)
 {
 	int	i;

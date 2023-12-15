@@ -26,7 +26,11 @@ class Server
 		Client *find_user(int clientFd);
 		channel *find_channel(std::string name);
 		Client* find_user_bynick(std::string nick);
-	
+		std::vector<std::string> process_single_command(std::string command);
+		void	process_command(std::string buffer, Client *client, std::string password);
+		void 	execute_commands(std::vector<std::string>args, Client* client, std::string password);
+		void    clientDiscon(int clientFd);
+
 	private:
 		int port;
 		int serverFd;
@@ -37,6 +41,7 @@ class Server
 		std::vector<pollfd> clientSockets;
 		std::vector<Client*> clients;
 		std::map<std::string, channel *> channels;
+		std::map<int, std::string> buffers;
 		void	newClientConnections(std::vector<struct pollfd>&	clientSockets);
 
 

@@ -58,6 +58,17 @@
 		"vector": "cpp",
 		"algorithm": "cpp",
 		"deque": "cpp",
-		"queue": "cpp"
+		"queue": "cpp",
+		"__functional_base": "cpp",
+		"__nullptr": "cpp",
+		"__string": "cpp",
+		"__tuple": "cpp",
+		"bit": "cpp",
+		"chrono": "cpp",
+		"functional": "cpp",
+		"iterator": "cpp",
+		"memory": "cpp",
+		"type_traits": "cpp",
+		"utility": "cpp"
 	}
 }

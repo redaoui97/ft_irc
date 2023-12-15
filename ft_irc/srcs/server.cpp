@@ -43,11 +43,20 @@ bool	Server::initializeServer(int port)
 	this->port = port;
 	serverFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (serverFd == -1) {
+		close(serverFd);
 		throw SocketInitException("failed to create socket!");
+		return false;
+	}
+	int r = 1;
+	if (setsockopt(serverFd, SOL_SOCKET, SO_REUSEADDR, &r, sizeof(r)) == -1)
+	{
+		close(serverFd);
+		throw SocketInitException("failed to set-up NonBlocking mode");
 		return false;
 	}
 
 	if (fcntl(serverFd, F_SETFL, O_NONBLOCK) == -1) {
+		close(serverFd);
 		throw SocketInitException("failed to set-up NonBlocking mode");
 		return false;
 	}
@@ -57,14 +66,15 @@ bool	Server::initializeServer(int port)
 	ServerAddr.sin_addr.s_addr = inet_addr("0.0.0.0");
 
 	if(bind(serverFd, (sockaddr*)&ServerAddr, sizeof(ServerAddr)) == -1 ) {
+		close(serverFd);
 		throw SocketInitException("failed to bind socket to port!");
 		close(serverFd);
 		return false;
 	}
 
 	if(listen(serverFd, 10) == -1) {
-		throw SocketInitException("failed to set-up listener!");
 		close(serverFd);
+		throw SocketInitException("failed to set-up listener!");
 		return 1;
 	}
 
@@ -73,6 +83,22 @@ bool	Server::initializeServer(int port)
 
 	std::cout << "The Server is initialized and listening on port :" << this->port << std::endl;
 	return true;
+}
+
+void Server::clientDiscon( int clientFd )
+{
+	this->buffers.erase(clientFd);
+	for (size_t i = 0; i < this->clients.size(); i++)
+	{
+		if (this->clients[i]->getClientFd() == clientFd)
+			this->clients.erase(this->clients.begin() + i);
+	}
+	for (size_t i = 0; i < this->clientSockets.size(); i++)
+	{
+		if (this->clientSockets[i].fd == clientFd)
+			this->clientSockets.erase(this->clientSockets.begin() + i);
+	}
+	close(clientFd);
 }
 
 void	Server::startListening() {
@@ -93,7 +119,8 @@ void	Server::startListening() {
 			newClientConnections(clientSockets);
 		} else {
 			for (size_t i = 0; i < clientSockets.size(); ++i) {
-
+				if (clientSockets[i].revents & (POLLHUP | POLLERR))
+					clientDiscon(clientSockets[i].fd);
 				if (clientSockets[i].revents & POLLIN) {
 					if (clientSockets[i].fd > 0) {
 						clientData(clientSockets[i].fd);
@@ -135,6 +162,7 @@ void Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
         char str[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &ip, str, INET_ADDRSTRLEN);
 		clients.push_back(create_client(clientFd, str));
+		this->buffers.insert(std::make_pair(clientFd, ""));
         std::cout << "New Client added. IP: " << str << std::endl;
 
     } else {
@@ -197,19 +225,20 @@ void	Server::clientData(int clientFd)
 		bytes = recv(clientFd, buffer, sizeof(buffer), 0);
 		if (bytes <= 0)
 		{
-			if (bytes == 0)
-			{
-				normal_error("Client closed connection");
-			}
-			else if (errno == EBADF)
-			{
-				normal_error("Error: Bad file descriptor");
-			} 
-			else
-			{ 
-				normal_error("Error occurred during Client connection");
-			}
-			close(clientFd);
+			// if (bytes == 0)
+			// {
+			// 	normal_error("Client closed connection");
+			// }
+			// else if (errno == EBADF)
+			// {
+			// 	normal_error("Error: Bad file descriptor");
+			// } 
+			// else
+			// { 
+			// 	normal_error("Error occurred during Client connection");
+			// }
+			// close(clientFd);
+			clientDiscon(clientFd);
 			return ;
 		}
 		else
@@ -234,6 +263,102 @@ channel	*create_channel(std::string name, Client *client, std::string password)
 	return (new channel(name, client, password));
 }
 
+std::string Server::get_time()
+{
+	return (make_time);
+}
+
+std::string Server::get_version()
+{
+	return (server_version);
+}
+
+//take the commands and parse them then execute
+//craete vector for the cmd and his params -
+std::vector<std::string> Server::process_single_command(std::string command)
+{
+    std::vector<std::string> command_vector;
+    std::istringstream iss(command);
+    std::string token;
+    std::string iteration_token;
+
+    //need to fix parser -> many spaces break the trailing and takes every space as arguemnt -> ':' shouldn't be part of the param
+    //this function will be replaced by the trailing handler function by athmane 
+    while (std::getline(iss, token, ' '))
+    {
+        if (!command_vector.empty() && command_vector.back().front() == ':' && !token.empty())
+        {
+            command_vector.back() += ' ' + token;
+        }
+        else
+        {
+            command_vector.push_back(token);
+        }
+    }
+    return (command_vector);
+}
+
+// handle ctrl d buffring and proccess cmd -
+void   Server::process_command(std::string buffer, Client *client, std::string password)
+{
+    std::vector<std::string> prepared_command;
+    std::string              command;
+	
+	if (buffer.size() > 0 && buffer[buffer.size() - 1] != '\n')
+        this->buffers[client->getClientFd()] += buffer;
+    else
+    {
+        this->buffers[client->getClientFd()] += buffer;
+        std::string proc_cmd = this->buffers[client->getClientFd()];
+        std::stringstream cmd(proc_cmd);
+        this->buffers[client->getClientFd()].clear();
+        while (std::getline(cmd, proc_cmd, '\n'))
+        {
+            if (proc_cmd.find('\r') != std::string::npos)
+                proc_cmd = proc_cmd.substr(0, proc_cmd.find('\r'));
+			prepared_command = process_single_command(proc_cmd);
+            execute_commands(prepared_command, client, password);
+        }
+		cmd.clear();
+    }
+}
+
+
+//execute the function
+void  Server::execute_commands(std::vector<std::string>args, Client* client, std::string password)
+{
+    // if ((args.front()).compare("QUIT") == 0)
+        //quit_cmd(client, args);
+    if (!client->IsAuthenticated())
+    {
+        if (!(args.front()).compare("PASS") || !(args.front()).compare("NICK") || !(args.front()).compare("USER"))
+            authentication(args, client, password);
+        else
+            send_err(client, ERR_NOTREGISTERED, ":You have not registered");
+    }
+    else
+    {
+        if (!(args.front()).compare("PRIVMSG"))
+        {
+            privmsg_cmd(client, args);
+        }
+        if (!(args.front()).compare("JOIN"))
+        {
+            join_cmd(client, args);
+        }
+        if (!(args.front()).compare("KICK") || !(args.front()).compare("INVITE") || !(args.front()).compare("TOPIC") || !(args.front()).compare("MODE"))
+        {
+            mod_commands(args, client);
+        }
+        else
+        {
+            std::cout << "unknown command" << std::endl;
+            send_message((":" + host_name() + " 421 " + client->getNickname() + " " + args.at(0) + " :Unkown command", + "\r\n"), client);
+            return ;
+        }
+    }
+}
+
 Server::~Server()
 {
 	if(serverFd != -1)
@@ -246,13 +371,3 @@ Server::~Server()
 	channels.clear();
 	clients.clear();
 }
-std::string Server::get_time()
-{
-	return (make_time);
-}
-
-std::string Server::get_version()
-{
-	return (server_version);
-}
-//take the commands and parse them then execute

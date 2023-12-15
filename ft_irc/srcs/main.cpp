@@ -12,10 +12,18 @@ static void ft_irc (std::string port, std::string password)
 
 int main(int argc, char **argv)
 {
-	if(argc == 3)
-		parse(argv[1], argv[2]);
-	else
-		fatal_error("Invlid arguments!");
-	ft_irc(argv[1], argv[2]);
+	try
+	{
+		if(argc == 3)
+			parse(argv[1], argv[2]);
+		else
+			fatal_error("Invlid arguments!");
+		ft_irc(argv[1], argv[2]);
+	}
+	catch (std::exception &ex)
+	{
+		std::cerr << ex.what() << std::endl;
+	}
+	
 	return 0;
 }

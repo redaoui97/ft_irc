@@ -163,10 +163,6 @@ bool	valid_nickname(std::string nick);
 
 //IRC command functions
 	//processing input functions
-void	process_command(std::string buffer, Client *client, std::string password);
-std::vector<std::string> process_single_command(std::string command);
-	//executing commands
-void 	execute_commands(std::vector<std::string>args, Client* client, std::string password);
 void	authentication(std::vector<std::string>args, Client* client, std::string password);
 void	pass_cmd(Client *client, std::vector<std::string> args, std::string password);
 void 	user_cmd(Client *client, std::vector<std::string> args);
@@ -181,7 +177,6 @@ void    topic_commands(std::vector<std::string> args, Client *client);
 void    mode_commands(std::vector<std::string> args, Client *client);
 
 //util functions
-void 	splitString(std::string input, std::string delimiter, std::queue<std::string> &result);
 void	clear_buffer(char *buffer, int size);
 std::string	to_String(int n);
 void 	send_message(std::string msg, Client *client);
