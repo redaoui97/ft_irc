@@ -332,6 +332,10 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
         //quit_cmd(client, args);
     if (!client->IsAuthenticated())
     {
+		if (args.empty()) {
+			send_err(client, ERR_NEEDMOREPARAMS, ":Not enough parameters");
+			return ;
+		}
         if (!(args.front()).compare("PASS") || !(args.front()).compare("NICK") || !(args.front()).compare("USER"))
             authentication(args, client, password);
         else
