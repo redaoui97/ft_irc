@@ -45,7 +45,7 @@ void Bot::connectServ() {
     msg = "USER " + this->username + " 0 * :" + this->username + "\r\n";
     send(this->clientSocket, msg.c_str(), msg.length(), 0);
 
-    msg = "USEBOT : ./bot\r\n";
+    msg = "bot connected to server secssfully\r\n";
     send(this->clientSocket, msg.c_str(), msg.length(), 0);
     while(1) {
         char buffer[1024];

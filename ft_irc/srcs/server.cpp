@@ -17,8 +17,7 @@ bool	Server::client_exists(std::string nick)
 
 	for (it = clients.begin(); it != clients.end(); ++it)
 	{
-        if (nick.compare((*it)->getNickname()) == 0)
-		{
+        if (nick.compare((*it)->getNickname()) == 0) {
 			return (true);
 		}
     }
@@ -218,27 +217,19 @@ void	Server::clientData(int clientFd)
 		normal_error("Error bad client file discriptor");
 		return ;
 	}
-	//clear buffer after each iteration
+
 	do
 	{
 		clear_buffer(buffer, 512);
 		bytes = recv(clientFd, buffer, sizeof(buffer), 0);
 		if (bytes <= 0)
 		{
-			if (bytes == 0)
-			{
-				normal_error("Client closed connection");
+			if (bytes == 0) {
+				throw std::runtime_error("Client closed connection");
+			} else { 
+				throw std::runtime_error("Error occurred during Client connection");
 			}
-			else if (errno == EBADF)
-			{
-				normal_error("Error: Bad file descriptor");
-			} 
-			else
-			{ 
-				normal_error("Error occurred during Client connection");
-			}
-			close(clientFd);
-			//clientDiscon(clientFd);
+			clientDiscon(clientFd);
 			return ;
 		}
 		else
@@ -334,9 +325,8 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
     {
 		if (args.empty()) {
 			send_err(client, ERR_NEEDMOREPARAMS, ":Not enough parameters");
-			return ;
 		}
-        if (!(args.front()).compare("PASS") || !(args.front()).compare("NICK") || !(args.front()).compare("USER"))
+        else if (!(args.front()).compare("PASS") || !(args.front()).compare("NICK") || !(args.front()).compare("USER"))
             authentication(args, client, password);
         else
             send_err(client, ERR_NOTREGISTERED, ":You have not registered");

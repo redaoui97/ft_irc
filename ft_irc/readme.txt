@@ -9,3 +9,8 @@ Will we add help command?
 add flags for channels
 
 
+-------
+
+change hostname to ip address - not yet
+forbidden using errno - not yet
+NICK - USER commands ranking - not yet
