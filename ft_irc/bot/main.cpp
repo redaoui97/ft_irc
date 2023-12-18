@@ -10,6 +10,5 @@ int main   (int argc, char** argv) {
         return 1;
     }
     Bot bot(argv[1], argv[2], argv[3], atoi(argv[4]));
-    bot.run();
     return 0;
 }

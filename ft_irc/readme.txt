@@ -9,8 +9,13 @@ Will we add help command?
 add flags for channels
 
 
--------
+---------------------------------------
 
+forbidden using errno - done
+segfault occured after authentication empty string. - fixed
+bot connect to server -done
+••••••••••••••••••••••••••••••••••••••••
 change hostname to ip address - not yet
-forbidden using errno - not yet
 NICK - USER commands ranking - not yet
+broadcast message if a new client joind - not yet
+error at bot send to client

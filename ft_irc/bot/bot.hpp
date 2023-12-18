@@ -9,20 +9,22 @@ class Bot {
 
         void connectServ();
         void init();
-        void run();
+        bool parseMessage(char *buffer);
 
 
     private:    
         std::string nickname;
         std::string username;
+        std::string hostname;
         std::string password;
         std::string address;
 
+        std::string clientNick;
         int clientSocket;
         int socketLength;
         int port;
-        struct sockaddr_in *clientAddress;
-        std::vector<std::string> *quotes;
+        struct sockaddr_in clientAddress;
+        std::vector<std::string> quotes;
 };
 
 bool    validPort(std::string port);
@@ -31,4 +33,3 @@ bool    validNickname(std::string nickname);
 bool    parseCommands(char** argv);
 void    printHelp(std::string msg);
 void	clearBuffer(char *buffer, int size);
-bool    parseMessage(char *buffer);

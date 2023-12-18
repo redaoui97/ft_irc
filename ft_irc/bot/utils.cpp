@@ -28,16 +28,13 @@ bool    validNickname(std::string nickname) {
 }
 bool    validPassword(std::string password) {
     if (password.empty()) {
-        std::cout << "empty password" << std::endl;
         return false;
     } else if (password.length() < 8 || password.length() > 20) {
-        std::cout << "password length" << std::endl;
         return false;
     }
 
-    for (size_t i = 0;i < password.length(); ++i) {
+    for (size_t i = 0;i < password.length(); i++) {
         if (!isalnum(password[i])) {
-            std::cout << "password alnum" << std::endl;
             return false;
         }
     }
@@ -60,7 +57,7 @@ bool    parseCommands(char** argv) {
         printHelp("Error: invalid port");
         return false;
     }
-    else if (!validPassword(argv[3])) {
+    else if (!validPassword(argv[2])) {
         printHelp("Error: invalid password");
         return false;
     }
@@ -81,17 +78,4 @@ void	clearBuffer(char *buffer, int size)
 		buffer[i] = '\0';
 		i++;
 	}
-}
-
-bool    parseMessage(char *buffer) {
-
-    std::string msg(buffer);
-    std::istringstream iss(msg);
-
-    std::string tmp;
-    iss >> tmp;
-    if (tmp != "./bot\r\n") {
-        return false;
-    }
-    return true;
 }

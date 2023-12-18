@@ -84,21 +84,6 @@ bool	Server::initializeServer(int port)
 	return true;
 }
 
-void Server::clientDiscon( int clientFd )
-{
-	this->buffers.erase(clientFd);
-	for (size_t i = 0; i < this->clients.size(); i++)
-	{
-		if ((this->clients[i])->getClientFd() == clientFd)
-			(this->clients).erase(this->clients.begin() + i);
-	}
-	for (size_t i = 0; i < this->clientSockets.size(); i++)
-	{
-		if (this->clientSockets[i].fd == clientFd)
-			this->clientSockets.erase(this->clientSockets.begin() + i);
-	}
-	close(clientFd);
-}
 
 void	Server::startListening() {
 
@@ -212,28 +197,18 @@ void	Server::clientData(int clientFd)
 	char 		buffer[512];
 	std::string	full_buffer;
 
-	if (clientFd < 0)
-	{
+	if (clientFd < 0) {
 		normal_error("Error bad client file discriptor");
 		return ;
 	}
-
-	do
-	{
+	do {
 		clear_buffer(buffer, 512);
 		bytes = recv(clientFd, buffer, sizeof(buffer), 0);
-		if (bytes <= 0)
-		{
+		if (bytes <= 0) {
 			if (bytes == 0) {
-				throw std::runtime_error("Client closed connection");
-			} else { 
-				throw std::runtime_error("Error occurred during Client connection");
+				clientDiscon(clientFd);
 			}
-			clientDiscon(clientFd);
-			return ;
-		}
-		else
-		{
+		} else {
 			full_buffer += buffer;
 			find_user(clientFd)->SetServer(this);
 			if (bytes != 512)
@@ -241,6 +216,7 @@ void	Server::clientData(int clientFd)
 		}
 	} while (bytes == 512);
 }
+
 
 void	Server::new_channel(std::string name, Client *client, std::string password)
 {
@@ -321,12 +297,12 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
 {
     // if ((args.front()).compare("QUIT") == 0)
         //quit_cmd(client, args);
-    if (!client->IsAuthenticated())
+	if (args.empty()) {
+		return ;
+	}
+    else if (!client->IsAuthenticated())
     {
-		if (args.empty()) {
-			send_err(client, ERR_NEEDMOREPARAMS, ":Not enough parameters");
-		}
-        else if (!(args.front()).compare("PASS") || !(args.front()).compare("NICK") || !(args.front()).compare("USER"))
+        if (!(args.front()).compare("PASS") || !(args.front()).compare("NICK") || !(args.front()).compare("USER"))
             authentication(args, client, password);
         else
             send_err(client, ERR_NOTREGISTERED, ":You have not registered");
@@ -337,7 +313,7 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
         {
             nick_cmd(client, args);
         }
-        if (!(args.front()).compare("PRIVMSG"))
+        else if (!(args.front()).compare("PRIVMSG"))
         {
             privmsg_cmd(client, args);
         }
@@ -345,7 +321,7 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
         {
             join_cmd(client, args);
         }
-		if (!(args.front()).compare("NOTICE"))
+		else if (!(args.front()).compare("NOTICE"))
         {
             privmsg_cmd(client, args);
         }
@@ -353,14 +329,32 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
         {
             mod_commands(args, client);
         }
-        else 
+		else if (!(args.front()).compare("PING") || !(args.front()).compare("PONG")) {
+			return ;
+		} 
+		else 
         {
-            std::cout << "unknown command" << std::endl;
 			//:irc.example.com 421 your_nick COMMAND :Unknown command
             send_message((":" + host_name() + " 421 " + client->getNickname() + " " + args.at(0) + " :Unknown command" + "\r\n"), client);
             return ;
         }
     }
+}
+
+void Server::clientDiscon( int clientFd )
+{
+	this->buffers.erase(clientFd);
+	for (size_t i = 0; i < this->clients.size(); i++)
+	{
+		if ((this->clients[i])->getClientFd() == clientFd)
+			(this->clients).erase(this->clients.begin() + i);
+	}
+	for (size_t i = 0; i < this->clientSockets.size(); i++)
+	{
+		if (this->clientSockets[i].fd == clientFd)
+			this->clientSockets.erase(this->clientSockets.begin() + i);
+	}
+	close(clientFd);
 }
 
 Server::~Server()
