@@ -1,0 +1,21 @@
+Made changes:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Todo:
+- all the clients should recieve a message when another client quits.
+-
