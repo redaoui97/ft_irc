@@ -79,3 +79,11 @@ void	clearBuffer(char *buffer, int size)
 		i++;
 	}
 }
+
+std::string getTime() {
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+    std::string msg = "[!time] [";
+    msg += std::to_string(ltm->tm_hour) + ":" + std::to_string(ltm->tm_min) + ":" + std::to_string(ltm->tm_sec) + "]";
+    return msg;
+}

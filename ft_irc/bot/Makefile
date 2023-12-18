@@ -1,6 +1,6 @@
 NAME	= ircbot
 CC		= c++
-FLAGS	= -Iinclude -Wall -Wextra -Werror -std=c++98 -g
+FLAGS	= -Iinclude -Wall -Wextra -Werror -std=c++98
 HEADER	= bot.hpp
 
 MAIN	= $(addprefix , main bot utils)
