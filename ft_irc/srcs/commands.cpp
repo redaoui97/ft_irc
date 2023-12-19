@@ -411,9 +411,14 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
         channel *chann = (client->GetServer())->find_channel(args.at(1));
         if (!chann)
             return ;
+        if (chann->is_user_restricted())
+        {
+            send_message((":" + host_name() + " 404 " + client->getNickname() + " " + args.at(1) + " :Cannot send to channel!" + "\r\n"), client);
+            return ;
+        }
         if (chann->is_member(client->getNickname()))
         {
-            broadcast_message(args.at(2), chann->all_clients());
+            broadcast_message(":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getIp() + ".ip PRIVMSG " + args.at(1) + " " + trimPoints(args.at(2)) + "\r\n", chann->all_clients());
             return ;
         }
         else
@@ -424,13 +429,18 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
     }
     if (!(client->GetServer())->client_exists(args.at(1)))
     {
-        send_message((":" + host_name() + " 401 " + client->getNickname() + " " + args.at(1) + " :No such nick/channel"), client);
+        send_message((":" + host_name() + " 401 " + client->getNickname() + " " + args.at(1) + " :No such nick/channel" + "\r\n"), client);
         return ;
     }
     else
     {
         Client *receiver = (client->GetServer())->find_user_bynick(args.at(1));
         if (receiver)
-            send_message((":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PRIVMSG " + args.at(1) + " :" + args.at(2) + "\r\n"), receiver);
+            send_message((":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PRIVMSG " + args.at(1) + " " + trimPoints(args.at(2)) + "\r\n"), receiver);
     }
+}
+
+void	quit_cmd(Client *client)
+{
+    (client->GetServer())->delete_client(client);
 }

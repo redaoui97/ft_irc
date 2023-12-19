@@ -295,12 +295,16 @@ void   Server::process_command(std::string buffer, Client *client, std::string p
 //execute the function
 void  Server::execute_commands(std::vector<std::string>args, Client* client, std::string password)
 {
-    // if ((args.front()).compare("QUIT") == 0)
-        //quit_cmd(client, args);
+    if (!(args.front()).compare("QUIT"))
+	{
+        quit_cmd(client);
+
+		return;
+	}
 	if (args.empty()) {
 		return ;
 	}
-    else if (!client->IsAuthenticated())
+    else if (!(client->IsAuthenticated()))
     {
         if (!(args.front()).compare("PASS") || !(args.front()).compare("NICK") || !(args.front()).compare("USER"))
             authentication(args, client, password);
@@ -309,7 +313,11 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
     }
     else
     {
-		if (!(args.front()).compare("NICK"))
+		if (!(args.front()).compare("USER"))
+		{
+			user_cmd(client, args);
+		}
+		else if (!(args.front()).compare("NICK"))
         {
             nick_cmd(client, args);
         }
@@ -355,6 +363,18 @@ void Server::clientDiscon( int clientFd )
 			this->clientSockets.erase(this->clientSockets.begin() + i);
 	}
 	close(clientFd);
+}
+
+void	Server::delete_client(Client *client)
+{
+	std::map<std::string, channel*>::iterator it;
+
+    for (it = channels.begin(); it != channels.end(); ++it)
+	{
+		if ((it->second)->is_member(client->getNickname()))
+			(it->second)->delete_client(client);
+    }
+	clientDiscon(client->getClientFd());
 }
 
 Server::~Server()

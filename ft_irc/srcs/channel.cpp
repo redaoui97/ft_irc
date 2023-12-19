@@ -13,6 +13,7 @@ channel::channel(std::string name, Client *client, std::string password)
     m_topic= "";
     m_invite_only = false;
     m_topic_restricted = true;
+    m_user_restricted = false;
     add_mod(client);
     add_client(client);
 }
@@ -20,6 +21,16 @@ channel::channel(std::string name, Client *client, std::string password)
 void channel::set_topic_restriction(bool status)
 {
     m_topic_restricted = status;
+}
+
+void channel::set_user_restriction(bool status)
+{
+    m_user_restricted = status;
+}
+
+bool    channel::is_user_restricted()
+{
+    return (m_user_restricted);
 }
 
 void channel::remove_mod(Client *client)

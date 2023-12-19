@@ -169,6 +169,7 @@ void 	user_cmd(Client *client, std::vector<std::string> args);
 void 	nick_cmd(Client *client, std::vector<std::string> args);
 void    join_cmd(Client *client, std::vector<std::string> args);
 void 	privmsg_cmd(Client *client, std::vector<std::string> args);
+void	quit_cmd(Client *client);
 void 	trigger_welcome(Client *client);
 void    mod_commands(std::vector<std::string> args, Client *client);
 void    kick_commands(std::vector<std::string> args, Client *client);
@@ -184,4 +185,6 @@ void		clear_buffer(char *buffer, int size);
 void 		send_message(std::string msg, Client *client);
 void 		broadcast_message(std::string msg, std::map<std::string, Client *> clients);
 void    	send_err(Client *client,  err_replies rep, std::string additional_message);
+std::string trimSpaces(const std::string& str);
+std::string trimPoints(const std::string& str);
 #endif
