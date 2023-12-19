@@ -440,7 +440,11 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
     }
 }
 
-void	quit_cmd(Client *client)
+void	quit_cmd(Client *client, std::vector<std::string> args)
 {
+    if (args.size() > 1)
+        (client->GetServer())->broadcast_channels(client, (":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " QUIT :" + args.at(1) + "\r\n"));
+    else
+        (client->GetServer())->broadcast_channels(client, (":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " QUIT" + "\r\n"));
     (client->GetServer())->delete_client(client);
 }

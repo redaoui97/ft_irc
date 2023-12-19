@@ -169,7 +169,7 @@ void 	user_cmd(Client *client, std::vector<std::string> args);
 void 	nick_cmd(Client *client, std::vector<std::string> args);
 void    join_cmd(Client *client, std::vector<std::string> args);
 void 	privmsg_cmd(Client *client, std::vector<std::string> args);
-void	quit_cmd(Client *client);
+void	quit_cmd(Client *client,  std::vector<std::string> args);
 void 	trigger_welcome(Client *client);
 void    mod_commands(std::vector<std::string> args, Client *client);
 void    kick_commands(std::vector<std::string> args, Client *client);

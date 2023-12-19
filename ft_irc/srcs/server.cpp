@@ -297,8 +297,7 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
 {
     if (!(args.front()).compare("QUIT"))
 	{
-        quit_cmd(client);
-
+        quit_cmd(client, args);
 		return;
 	}
 	if (args.empty()) {
@@ -375,6 +374,17 @@ void	Server::delete_client(Client *client)
 			(it->second)->delete_client(client);
     }
 	clientDiscon(client->getClientFd());
+}
+
+void	Server::broadcast_channels(Client *client,  std::string msg)
+{
+	std::map<std::string, channel*>::iterator it;
+
+    for (it = channels.begin(); it != channels.end(); ++it)
+	{
+		if ((it->second)->is_member(client->getNickname()))
+			broadcast_message(msg, (it->second)->all_clients());
+    }
 }
 
 Server::~Server()

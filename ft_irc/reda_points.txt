@@ -4,3 +4,7 @@
 -Fixed the PRIVMSG for user to user, fixed additional ":" in the message and some end of message problems
 -Now fixing the user restriction inside the channel(preparing for mode actions)
 
+
+
+
+Error:
