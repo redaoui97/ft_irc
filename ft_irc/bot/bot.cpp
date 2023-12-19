@@ -42,7 +42,7 @@ void Bot::connectServ() {
     send(this->clientSocket, msg.c_str(), msg.length(), 0);
     msg = "NICK " + this->nickname + "\r\n";
     send(this->clientSocket, msg.c_str(), msg.length(), 0);
-    msg = "USER " + this->username + " 0 * :" + this->username + "\r\n";
+    msg = "USER " + this->username + " " + this->hostname + " BserverName :BrealName\r\n";
     send(this->clientSocket, msg.c_str(), msg.length(), 0);
 
     std::cout << "Bot connected to server" << std::endl;
@@ -60,7 +60,7 @@ void Bot::connectServ() {
     }
 }
 
-std::string Bot::botCommands(std::string cmd)
+void Bot::botCommands(std::string cmd)
 {
     if (cmd == ":!help") {
         std::string msg = "[!help]\n    [exisiting commands]\n[!quote]-[!8ball]-[!time]";
@@ -105,16 +105,16 @@ bool    Bot::parseMessage(char *buffer) {
     std::string msg(buffer);
     std::istringstream iss(msg);
     std::string cmd;
+    std::string Bcmd;
 
-    iss >> cmd;
     iss >> cmd;
     std::cout << "Received cmd: " << cmd << std::endl;
     if (cmd == "PRIVMSG") {
         std::string botNick;
         std::string clientNickName;
         
-        iss >> botNick;
-        iss >> clientNickName;
+        iss >> botNick >> std::ws >> clientNickName >> std::ws >> Bcmd;
+        //iss >> clientNickName;
         if (clientNickName[0] == ':') {
             if (clientNickName[1] == ':')
                 clientNickName.erase(0, 2);
@@ -122,8 +122,8 @@ bool    Bot::parseMessage(char *buffer) {
                 clientNickName.erase(0, 1); // check the data recieved from the server is in the form of ::<nickname> - extra :
         }
         clientNick = clientNickName;
-        std::string cmd;
-        iss >> cmd;
+        //iss >> Bcmd;
+        std::cout << "Bcmd: " << Bcmd << std::endl;
         if (iss.eof()) {
             std::string message = "PRIVMSG " + clientNickName + " :Invalid command, type [!help] for more info";
             ssize_t sentBytes = send(this->clientSocket, message.c_str(), message.length(), 0);
@@ -131,10 +131,9 @@ bool    Bot::parseMessage(char *buffer) {
                 std::cout << "Error: sending message failed" << std::endl;
             }
         } else {
-            botCommands(cmd);
+            std::cout << "" << clientNickName << std::endl;
+            botCommands(Bcmd);
         }
-        //std::cout << "botNick: " << botNick << std::endl;
-        //std::cout << "clientNick: " << clientNickName << std::endl;
         //std::cout << "cmd: " << cmd << std::endl;
     }
     return true;

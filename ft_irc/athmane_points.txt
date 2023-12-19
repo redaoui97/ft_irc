@@ -17,5 +17,5 @@ Made changes:
 
 
 Todo:
-- all the clients should recieve a message when another client quits.
--
+- all the clients should recieve a message when another client quits from a channel.
+- the server does not print any message when a client disconnect unexpectedly

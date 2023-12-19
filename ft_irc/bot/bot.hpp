@@ -10,7 +10,7 @@ class Bot {
         void connectServ();
         void init();
         bool parseMessage(char *buffer);
-        std::string botCommands(std::string cmd);
+        void botCommands(std::string cmd);
 
 
     private:    
