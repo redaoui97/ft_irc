@@ -16,6 +16,7 @@ class channel
 		bool		m_invite_only;
 		bool		m_password_restrict;
 		bool		m_topic_restricted;
+		bool		m_user_restricted;
 		
 	public:
 		channel(std::string name, Client *client, std::string password);
@@ -34,10 +35,12 @@ class channel
 		void add_toinvite(Client *client);
 		void set_inv_status(bool status);
 		void set_topic_restriction(bool status);
+		void set_user_restriction(bool status);
 		void remove_mod(Client *client);
 		void set_newpw(std::string password);
 		void pw_restriction_status(bool status);
 		std::map<std::string, Client *> all_clients();
+		bool is_user_restricted();
 		~channel();
 		
 };

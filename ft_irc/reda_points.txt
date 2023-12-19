@@ -1,0 +1,6 @@
+-Fixed the authentication:
+-We can use now NICK after being authenticated
+-I'll fix USER aswell, ther is some weird behavior when I add USER to the commands
+-Fixed the PRIVMSG for user to user, fixed additional ":" in the message and some end of message problems
+-Now fixing the user restriction inside the channel(preparing for mode actions)
+
