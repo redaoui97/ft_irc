@@ -11,18 +11,6 @@ Server::Server(std::string const password)
 	this->make_time = get_date();
 }
 	
-bool	Server::client_exists(std::string nick)
-{
-	std::vector<Client*>::iterator it;
-
-	for (it = clients.begin(); it != clients.end(); ++it)
-	{
-        if (nick.compare((*it)->getNickname()) == 0) {
-			return (true);
-		}
-    }
-	return (false);
-}
 
 bool	Server::channel_exists(std::string chann)
 {
@@ -98,19 +86,22 @@ void	Server::startListening() {
 			normal_error("Error polling the data from clients");
 			break;
 		}
+
 		if (clientSockets[0].revents & POLLIN) {
 			newClientConnections(clientSockets);
 		} else {
 			for (size_t i = 0; i < clientSockets.size(); ++i) {
-				if (clientSockets[i].revents & (POLLHUP | POLLERR))
-					clientDiscon(clientSockets[i].fd);
-				if (clientSockets[i].revents & POLLIN) {
+				std::cout << "\n\n loooooooool \n\n";
+				if (clientSockets[i].revents & (POLLHUP | POLLERR)) {
+					delete_client(find_user(clientSockets[i].fd));
+					continue ;
+				}
+				else if (clientSockets[i].revents & POLLIN) {
 					if (clientSockets[i].fd > 0) {
 						clientData(clientSockets[i].fd);
 					} else {
 						normal_error("invalid client socket");
-						clientSockets.erase(clientSockets.begin() + i);
-						--i;
+						delete_client(find_user(clientSockets[i].fd));
 					}
 				}
 			}
@@ -190,6 +181,7 @@ Client* Server::find_user(int clientFd)
     return (NULL);
 }
 
+
 void	Server::clientData(int clientFd)
 {
 	ssize_t		bytes;
@@ -204,10 +196,8 @@ void	Server::clientData(int clientFd)
 		clear_buffer(buffer, 512);
 		bytes = recv(clientFd, buffer, sizeof(buffer), 0);
 		if (bytes <= 0) {
-			if (bytes == 0) {
-				clientDiscon(clientFd);
-			}
-		} else {
+				delete_client(find_user(clientFd));
+		}else {
 			full_buffer += buffer;
 			find_user(clientFd)->SetServer(this);
 			if (bytes != 512)
@@ -217,65 +207,13 @@ void	Server::clientData(int clientFd)
 }
 
 
-void	Server::new_channel(std::string name, Client *client, std::string password)
-{
-	channel *chann = create_channel(name, client, password);
 
-	channels.insert(std::make_pair(name, chann));
-}
 
-channel	*create_channel(std::string name, Client *client, std::string password)
-{
-	return (new channel(name, client, password));
-}
-
-std::string Server::get_time()
-{
-	return (make_time);
-}
-
-std::string Server::get_version()
-{
-	return (server_version);
-}
-
-//take the commands and parse them then execute
-//craete vector for the cmd and his params -
-std::vector<std::string> Server::process_single_command(std::string command)
-{
-    std::vector<std::string> command_vector;
-    std::istringstream iss(command);
-    std::string token;
-    std::string iteration_token;
-
-    //need to fix parser -> many spaces break the trailing and takes every space as arguemnt -> ':' shouldn't be part of the param
-    //this function will be replaced by the trailing handler function by athmane 
-    while (std::getline(iss, token, ' '))
-    {
-        if (!command_vector.empty() && command_vector.back().front() == ':' && !token.empty())
-        {
-            command_vector.back() += ' ' + token;
-        }
-        else
-        {
-            command_vector.push_back(token);
-        }
-    }
-    return (command_vector);
-}
-
-// handle ctrl d buffring and proccess cmd -
 void   Server::process_command(std::string buffer, Client *client, std::string password)
 {
     std::vector<std::string> prepared_command;
     std::string              command;
 
-
-	//print prepared_command
-	// std::cout << "************************************" << std::endl;
-	// std::cout << "buffer : " << buffer << std::endl;
-	// std::cout << "************************************\n\n" << std::endl;
-	
 	if (buffer.size() > 0 && buffer[buffer.size() - 1] != '\n')
         this->buffers[client->getClientFd()] += buffer;
     else
@@ -289,22 +227,38 @@ void   Server::process_command(std::string buffer, Client *client, std::string p
             if (proc_cmd.find('\r') != std::string::npos)
                 proc_cmd = proc_cmd.substr(0, proc_cmd.find('\r'));
 			prepared_command = process_single_command(proc_cmd);
-			std::cout << "command: " << proc_cmd << std::endl; // need to remove // more protection
-			if (prepared_command.empty() || prepared_command.front().empty()) {
+			std::cout << "command: " << proc_cmd << std::endl;
+			if (prepared_command.empty()) {
 				return ;
 			} else
 				execute_commands(prepared_command, client, password);
         }
 		cmd.clear();
     }
-	buffer.clear();
 }
 
+std::vector<std::string> Server::process_single_command(std::string command)
+{
+    std::vector<std::string> command_vector;
+    std::istringstream iss(command);
+    std::string token;
+    std::string iteration_token;
 
-//execute the function
+
+    while (std::getline(iss, token, ' '))
+    {
+        if (!command_vector.empty() && command_vector.back().front() == ':' && !token.empty()) {
+            command_vector.back() += ' ' + token;
+        } else {
+            command_vector.push_back(token);
+        }
+    }
+    return (command_vector);
+}
+
 void  Server::execute_commands(std::vector<std::string>args, Client* client, std::string password)
 {
-	if (args.empty()) { // segfault fix
+	if (args.empty()) {
 		return ;
 	}
     if (!(args.front()).compare("QUIT"))
@@ -358,21 +312,46 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
     }
 }
 
+bool	Server::client_exists(std::string nick)
+{
+	std::vector<Client*>::iterator it;
+
+	for (it = clients.begin(); it != clients.end(); ++it)
+	{
+        if (nick.compare((*it)->getNickname()) == 0) {
+			return (true);
+		}
+    }
+	return (false);
+}
+
+void	Server::new_channel(std::string name, Client *client, std::string password)
+{
+	channel *chann = create_channel(name, client, password);
+
+	channels.insert(std::make_pair(name, chann));
+}
+
+channel	*create_channel(std::string name, Client *client, std::string password)
+{
+	return (new channel(name, client, password));
+}
+
+std::string Server::get_time()
+{
+	return (make_time);
+}
+
+std::string Server::get_version()
+{
+	return (server_version);
+}
+
 void Server::clientDiscon( int clientFd )
 {
-	//delete from all channels
-	std::map<std::string, channel*>::iterator it;
-
-	for (it = channels.begin(); it != channels.end(); ++it)
-	{
-
-		if ((it->second)->is_member(find_user(clientFd)->getNickname()))
-		{
-			broadcast_message(" :" + find_user(clientFd)->getNickname() + " has been quitted\r\n", (it->second)->all_clients());
-			(it->second)->delete_client(find_user(clientFd));
-		}
+	if (this->buffers.find(clientFd) != this->buffers.end()) {
+		this->buffers.erase(clientFd);
 	}
-	this->buffers.erase(clientFd);
 	for (size_t i = 0; i < this->clients.size(); i++)
 	{
 		if ((this->clients[i])->getClientFd() == clientFd)
@@ -393,13 +372,17 @@ void	Server::delete_client(Client *client)
     for (it = channels.begin(); it != channels.end(); ++it)
 	{
 		if ((it->second)->is_member(client->getNickname()))
+		{
+			broadcast_message(" :" + client->getNickname() + " has been quitted\r\n", (it->second)->all_clients());
 			(it->second)->delete_client(client);
+		}
     }
 	clientDiscon(client->getClientFd());
 }
 
 Server::~Server()
 {
+
 	if(serverFd != -1)
 		close(serverFd);
 	for (std::vector<Client*>::iterator it = clients.begin(); it != clients.end(); ++it)
@@ -410,3 +393,5 @@ Server::~Server()
 	channels.clear();
 	clients.clear();
 }
+
+//client server getters commands
