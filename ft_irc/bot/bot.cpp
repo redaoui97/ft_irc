@@ -49,8 +49,10 @@ void Bot::connectServ() {
     while(1) {
         char buffer[1024];
         clearBuffer(buffer, 1024);
-        if (recv(this->clientSocket, buffer, 1024, 0) < 0) {
+   
+        if (recv(this->clientSocket, buffer, 1024, 0) <= 0) {
             printHelp("Error: recv failed");
+            break;
         } else {
             std::cout << "this is the buffer: " << buffer << std::endl;
             if (!parseMessage(buffer)) {
@@ -62,37 +64,37 @@ void Bot::connectServ() {
 
 void Bot::botCommands(std::string cmd)
 {
-    if (cmd == ":!help") {
-        std::string msg = "[!help]\n    [exisiting commands]\n[!quote]-[!8ball]-[!time]";
+    if (cmd == "!help") {
+        std::string msg = " :Available commands : [!quote] [!8ball] [!time] \r\n";
         std::string message = "PRIVMSG " + this->clientNick + msg;
         ssize_t sentBytes = send(this->clientSocket, message.c_str(), message.length(), 0);
         if (sentBytes == -1) {
             std::cout << "Error: sending message failed" << std::endl;
         }
-    } else if (cmd == ":!quote") {
+    } else if (cmd == "!quote") {
         std::size_t randomIndex = std::rand() % this->quotes.size();
-        std::string message = "PRIVMSG " + this->clientNick + " :" + this->quotes[randomIndex];
+        std::string message = "PRIVMSG " + this->clientNick + " :" + this->quotes[randomIndex] + "\r\n";
         ssize_t sentBytes = send(this->clientSocket, message.c_str(), message.length(), 0);
         if (sentBytes == -1) {
             std::cout << "Error: sending message failed" << std::endl;
         }
     } else if(cmd == "!8ball") {
         size_t randomIndex = std::rand() % 10;
-        std::string msg = "[!8ball] [Your lucky number is: " + std::to_string(randomIndex) + "]";
-        std::string message = "PRIVMSG " + this->clientNick + msg;
+        std::string msg = " :[!8ball] [Your lucky number is: " + std::to_string(randomIndex) + "]";
+        std::string message = "PRIVMSG " + this->clientNick + msg  + "\r\n";
         ssize_t sentBytes = send(this->clientSocket, message.c_str(), message.length(), 0);
         if (sentBytes == -1) {
             std::cout << "Error: sending message failed" << std::endl;
         }
-    } else if(cmd == ":!time") {
-        std::string msg = getTime();
-        std::string message = "PRIVMSG " + this->clientNick + msg;
+    } else if(cmd == "!time") {
+        std::string msg = getTime() ;
+        std::string message = "PRIVMSG " + this->clientNick + " :" + msg + "\r\n";
         ssize_t sentBytes = send(this->clientSocket, message.c_str(), message.length(), 0);
         if (sentBytes == -1) {
             std::cout << "Error: sending message failed" << std::endl;
         }
     } else {
-        std::string message = "PRIVMSG " + this->clientNick + " :Invalid command, type [!help] for more info";
+        std::string message = "PRIVMSG " + this->clientNick + " :Invalid command, type [!help] for more info"  + "\r\n";
         ssize_t sentBytes = send(this->clientSocket, message.c_str(), message.length(), 0);
         if (sentBytes == -1) {
             std::cout << "Error: sending message failed" << std::endl;
@@ -108,42 +110,33 @@ bool    Bot::parseMessage(char *buffer) {
     std::string Bcmd;
 
     iss >> cmd;
+    iss >> cmd;
     std::cout << "Received cmd: " << cmd << std::endl;
     if (cmd == "PRIVMSG") {
         std::string botNick;
         std::string clientNickName;
         
-        iss >> botNick >> std::ws >> clientNickName >> std::ws >> Bcmd;
-        //iss >> clientNickName;
-        if (clientNickName[0] == ':') {
-            if (clientNickName[1] == ':')
-                clientNickName.erase(0, 2);
-            else
-                clientNickName.erase(0, 1); // check the data recieved from the server is in the form of ::<nickname> - extra :
-        }
+        iss >> std::ws >> botNick >> std::ws >> clientNickName >> std::ws >> Bcmd;
+        if (clientNickName[0] == ':')
+            clientNickName.erase(0, 1);
         clientNick = clientNickName;
-        //iss >> Bcmd;
-        std::cout << "Bcmd: " << Bcmd << std::endl;
-        if (iss.eof()) {
-            std::string message = "PRIVMSG " + clientNickName + " :Invalid command, type [!help] for more info";
+
+        std::string tmp;
+        iss >> tmp;
+        if (!tmp.empty()) {
+            std::string message = "PRIVMSG " + clientNickName + " :Invalid command, type [!help] for more info\r\n";
             ssize_t sentBytes = send(this->clientSocket, message.c_str(), message.length(), 0);
-            if (sentBytes == -1) {
+            if (sentBytes == -1 || sentBytes == 0) {
                 std::cout << "Error: sending message failed" << std::endl;
             }
         } else {
-            std::cout << "" << clientNickName << std::endl;
             botCommands(Bcmd);
         }
-        //std::cout << "cmd: " << cmd << std::endl;
+        std::cout << "cmd: " << cmd << std::endl;
     }
     return true;
 }
 
 Bot::~Bot() {
     std::cout << "Bot destroyed" << std::endl;
-    std::string message = ":" + this->nickname + " PRIVMSG " + this->clientNick + " :Bot destroyed";
-    ssize_t sentBytes = send(this->clientSocket, message.c_str(), message.length(), 0);
-    if (sentBytes == -1) {
-        std::cout << "Error: sending message failed" << std::endl;
-    }    
 }

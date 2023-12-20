@@ -98,7 +98,6 @@ void	Server::startListening() {
 			normal_error("Error polling the data from clients");
 			break;
 		}
-
 		if (clientSockets[0].revents & POLLIN) {
 			newClientConnections(clientSockets);
 		} else {
@@ -270,6 +269,12 @@ void   Server::process_command(std::string buffer, Client *client, std::string p
 {
     std::vector<std::string> prepared_command;
     std::string              command;
+
+
+	//print prepared_command
+	// std::cout << "************************************" << std::endl;
+	// std::cout << "buffer : " << buffer << std::endl;
+	// std::cout << "************************************\n\n" << std::endl;
 	
 	if (buffer.size() > 0 && buffer[buffer.size() - 1] != '\n')
         this->buffers[client->getClientFd()] += buffer;
@@ -284,25 +289,29 @@ void   Server::process_command(std::string buffer, Client *client, std::string p
             if (proc_cmd.find('\r') != std::string::npos)
                 proc_cmd = proc_cmd.substr(0, proc_cmd.find('\r'));
 			prepared_command = process_single_command(proc_cmd);
-			std::cout << "command: " << proc_cmd << std::endl;
-            execute_commands(prepared_command, client, password);
+			std::cout << "command: " << proc_cmd << std::endl; // need to remove // more protection
+			if (prepared_command.empty() || prepared_command.front().empty()) {
+				return ;
+			} else
+				execute_commands(prepared_command, client, password);
         }
 		cmd.clear();
     }
+	buffer.clear();
 }
 
 
 //execute the function
 void  Server::execute_commands(std::vector<std::string>args, Client* client, std::string password)
 {
+	if (args.empty()) { // segfault fix
+		return ;
+	}
     if (!(args.front()).compare("QUIT"))
 	{
         quit_cmd(client);
 
 		return;
-	}
-	if (args.empty()) {
-		return ;
 	}
     else if (!(client->IsAuthenticated()))
     {
@@ -351,6 +360,18 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
 
 void Server::clientDiscon( int clientFd )
 {
+	//delete from all channels
+	std::map<std::string, channel*>::iterator it;
+
+	for (it = channels.begin(); it != channels.end(); ++it)
+	{
+
+		if ((it->second)->is_member(find_user(clientFd)->getNickname()))
+		{
+			broadcast_message(" :" + find_user(clientFd)->getNickname() + " has been quitted\r\n", (it->second)->all_clients());
+			(it->second)->delete_client(find_user(clientFd));
+		}
+	}
 	this->buffers.erase(clientFd);
 	for (size_t i = 0; i < this->clients.size(); i++)
 	{

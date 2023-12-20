@@ -1,15 +1,9 @@
 Made changes:
 
-
-
-
-
-
-
-
-
-
-
+bot finished , testing
+- the server does not print any message when a client disconnect unexpectedly
+- all the clients should recieve a message when another client quits from a channel.- done
+- while inf occured in the bot after ctrl c on server. - fixed
 
 
 
@@ -17,5 +11,3 @@ Made changes:
 
 
 Todo:
-- all the clients should recieve a message when another client quits from a channel.
-- the server does not print any message when a client disconnect unexpectedly

@@ -437,6 +437,8 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
         Client *receiver = (client->GetServer())->find_user_bynick(args.at(1));
         if (receiver)
             send_message((":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PRIVMSG " + args.at(1) + " " + trimPoints(args.at(2)) + "\r\n"), receiver);
+        else 
+        std::cout << "privmsg exec: receiver not found" << std::endl;
     }
 }
 
@@ -444,3 +446,5 @@ void	quit_cmd(Client *client)
 {
     (client->GetServer())->delete_client(client);
 }
+
+
