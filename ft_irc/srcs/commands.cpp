@@ -159,11 +159,15 @@ void    join_cmd(Client *client, std::vector<std::string> args)
         send_message((":" + host_name() + " 332 ", client->getNickname() + " " + args.at(1) + " :Topic: " + chann->get_topic() + "\r\n"), client);
     }
     channel *chann = client->GetServer()->find_channel(args.at(1));
+    std::string statuss = " = ";
+    std::string clients_connected = client->getNickname();
     if (chann)
     {
         broadcast_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getHostname() + " JOIN " + args.at(1) + "\r\n"), chann->all_clients());
+        statuss = (chann->require_pw() ? " @" : " = ");
+        clients_connected = chann->print_all_client();
     }
-    send_message((":" + host_name() + " 353 " + client->getNickname() + " = " + args.at(1) + " :@" + client->getNickname() + "\r\n"), client);
+    send_message((":" + host_name() + " 353 " + client->getNickname() + statuss + args.at(1) + " :@" + clients_connected + "\r\n"), client);
     send_message((":" + host_name() + " 366 " + client->getNickname() + " " + args.at(1) + " :End of /NAMES list" + "\r\n"), client);
 }
 
@@ -437,14 +441,14 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
         Client *receiver = (client->GetServer())->find_user_bynick(args.at(1));
         if (receiver)
             send_message((":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PRIVMSG " + args.at(1) + " " + trimPoints(args.at(2)) + "\r\n"), receiver);
-        else 
-        std::cout << "privmsg exec: receiver not found" << std::endl;
     }
 }
 
-void	quit_cmd(Client *client)
+void	quit_cmd(Client *client, std::vector<std::string> args)
 {
+    if (args.size() > 1)
+        (client->GetServer())->broadcast_channels(client, (":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " QUIT :" + args.at(1) + "\r\n"));
+    else
+        (client->GetServer())->broadcast_channels(client, (":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " QUIT" + "\r\n"));
     (client->GetServer())->delete_client(client);
 }
-
-

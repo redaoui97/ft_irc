@@ -44,6 +44,7 @@ class Server
 		void 	execute_commands(std::vector<std::string>args, Client* client, std::string password);
 		void    clientDiscon(int clientFd);
 		void	delete_client(Client *client);
+		void	broadcast_channels(Client *client,  std::string msg);
 
 	class SocketInitException : public std::exception
 	{

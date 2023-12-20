@@ -200,14 +200,17 @@ std::vector<std::string> Server::process_single_command(std::string command)
 
 void  Server::execute_commands(std::vector<std::string>args, Client* client, std::string password)
 {
-	if (args.empty()) {
+	if (args.empty())
+	{
 		return ;
 	}
-    if (!(args.front()).compare("QUIT"))
+	if (!(args.front()).compare("QUIT"))
 	{
-        quit_cmd(client);
-
+        quit_cmd(client, args);
 		return;
+	}
+	if (args.empty()) {
+		return ;
 	}
     else if (!(client->IsAuthenticated()))
     {
@@ -218,14 +221,7 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
     }
     else
     {
-		if (!(args.front()).compare("PASS"))
-		{
-			if (args.size() > 1)
-				pass_cmd(client, args, args.at(1));
-			else
-				pass_cmd(client, args, "");
-		}
-		else if (!(args.front()).compare("USER"))
+		if (!(args.front()).compare("USER"))
 		{
 			user_cmd(client, args);
 		}
@@ -249,8 +245,7 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
         {
             mod_commands(args, client);
         }
-		else if (!(args.front()).compare("PING") || !(args.front()).compare("PONG"))
-		{
+		else if (!(args.front()).compare("PING") || !(args.front()).compare("PONG")) {
 			return ;
 		} 
 		else 
@@ -259,7 +254,7 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
             send_message((":" + host_name() + " 421 " + client->getNickname() + " " + args.at(0) + " :Unknown command" + "\r\n"), client);
             return ;
         }
-    }
+    }    
 }
 
 bool	Server::channel_exists(std::string chann)
@@ -343,10 +338,9 @@ bool	Server::client_exists(std::string nick)
 
 	for (it = clients.begin(); it != clients.end(); ++it)
 	{
-        if (nick.compare((*it)->getNickname()) == 0) {
+        if (nick.compare((*it)->getNickname()) == 0)
 			return (true);
-		}
-    }
+	}
 	return (false);
 }
 
@@ -381,6 +375,17 @@ void	Server::delete_client(Client *client)
 		}
     }
 	clientDiscon(client->getClientFd());
+}
+
+void	Server::broadcast_channels(Client *client,  std::string msg)
+{
+	std::map<std::string, channel*>::iterator it;
+
+    for (it = channels.begin(); it != channels.end(); ++it)
+	{
+		if ((it->second)->is_member(client->getNickname()))
+			broadcast_message(msg, (it->second)->all_clients());
+    }
 }
 
 Server::~Server()

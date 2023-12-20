@@ -146,6 +146,23 @@ std::map<std::string, Client *> channel::all_clients()
 {
     return (m_members);
 }
+
+std::string channel::print_all_client()
+{
+    std::string result;
+    std::map<std::string, Client*>::const_iterator it;
+
+    for (it = m_members.begin(); it != m_members.end(); ++it)
+    {
+        result += it->first + " ";
+    }
+    if (!result.empty())
+    {
+        result.erase(result.size() - 1);
+    }
+    return result;
+}
+
 channel::~channel()
 {
     std::cout << "Channel deleted!" << std::endl;

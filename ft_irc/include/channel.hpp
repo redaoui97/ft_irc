@@ -41,6 +41,7 @@ class channel
 		void pw_restriction_status(bool status);
 		std::map<std::string, Client *> all_clients();
 		bool is_user_restricted();
+		std::string print_all_client();
 		~channel();
 		
 };
