@@ -218,7 +218,14 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
     }
     else
     {
-		if (!(args.front()).compare("USER"))
+		if (!(args.front()).compare("PASS"))
+		{
+			if (args.size() > 1)
+				pass_cmd(client, args, args.at(1));
+			else
+				pass_cmd(client, args, "");
+		}
+		else if (!(args.front()).compare("USER"))
 		{
 			user_cmd(client, args);
 		}
