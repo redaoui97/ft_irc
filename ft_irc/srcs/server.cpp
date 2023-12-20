@@ -10,18 +10,7 @@ Server::Server(std::string const password)
 	this->server_version = "0.01v";
 	this->make_time = get_date();
 }
-	
 
-bool	Server::channel_exists(std::string chann)
-{
-	std::map<std::string, channel*>::iterator it = channels.find(chann);
-
-	if (channels.empty())
-		return (false);
-	if (it != channels.end())
-		return (true);
-	return (false);
-}
 
 bool	Server::initializeServer(int port)
 {
@@ -72,7 +61,6 @@ bool	Server::initializeServer(int port)
 	return true;
 }
 
-
 void	Server::startListening() {
 
 	int filesnum;
@@ -91,7 +79,6 @@ void	Server::startListening() {
 			newClientConnections(clientSockets);
 		} else {
 			for (size_t i = 0; i < clientSockets.size(); ++i) {
-				std::cout << "\n\n loooooooool \n\n";
 				if (clientSockets[i].revents & (POLLHUP | POLLERR)) {
 					delete_client(find_user(clientSockets[i].fd));
 					continue ;
@@ -107,11 +94,6 @@ void	Server::startListening() {
 			}
 		}
 	}
-}
-
-Client* create_client(int clientFd, char *ip)
-{
-    return (new Client(clientFd, ip));
 }
 
 void Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
@@ -145,43 +127,6 @@ void Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
     }
 }
 
-channel* Server::find_channel(std::string name)
-{
-	for (std::map<std::string, channel*>::const_iterator it = channels.begin(); it != channels.end(); ++it) {
-        if (it->first == name)
-		{
-            return it->second;
-        }
-    }
-    return NULL; 
-}
-
-Client* Server::find_user_bynick(std::string nick)
-{
-	std::vector<Client*>::iterator it;
-    
-    for (it = clients.begin(); it != clients.end(); ++it)
-	{
-        if ((*it)->getNickname() == nick) {
-            return *it;
-        }
-    }
-	return (NULL);
-}
-Client* Server::find_user(int clientFd)
-{
-	std::vector<Client*>::iterator it;
-    
-    for (it = clients.begin(); it != clients.end(); ++it)
-	{
-        if ((*it)->getClientFd() == clientFd) {
-            return *it;
-        }
-    }
-    return (NULL);
-}
-
-
 void	Server::clientData(int clientFd)
 {
 	ssize_t		bytes;
@@ -205,9 +150,6 @@ void	Server::clientData(int clientFd)
 		}
 	} while (bytes == 512);
 }
-
-
-
 
 void   Server::process_command(std::string buffer, Client *client, std::string password)
 {
@@ -312,6 +254,81 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
     }
 }
 
+bool	Server::channel_exists(std::string chann)
+{
+	std::map<std::string, channel*>::iterator it = channels.find(chann);
+
+	if (channels.empty())
+		return (false);
+	if (it != channels.end())
+		return (true);
+	return (false);
+}
+
+channel* Server::find_channel(std::string name)
+{
+	for (std::map<std::string, channel*>::const_iterator it = channels.begin(); it != channels.end(); ++it) {
+        if (it->first == name)
+		{
+            return it->second;
+        }
+    }
+    return NULL; 
+}
+
+Client* Server::find_user_bynick(std::string nick)
+{
+	std::vector<Client*>::iterator it;
+    
+    for (it = clients.begin(); it != clients.end(); ++it)
+	{
+        if ((*it)->getNickname() == nick) {
+            return *it;
+        }
+    }
+	return (NULL);
+}
+
+Client* Server::find_user(int clientFd)
+{
+	std::vector<Client*>::iterator it;
+    
+    for (it = clients.begin(); it != clients.end(); ++it)
+	{
+        if ((*it)->getClientFd() == clientFd) {
+            return *it;
+        }
+    }
+    return (NULL);
+}
+
+std::string Server::get_time()
+{
+	return (make_time);
+}
+
+std::string Server::get_version()
+{
+	return (server_version);
+}
+
+channel	*create_channel(std::string name, Client *client, std::string password)
+{
+	return (new channel(name, client, password));
+}
+
+void	Server::new_channel(std::string name, Client *client, std::string password)
+{
+	channel *chann = create_channel(name, client, password);
+
+	channels.insert(std::make_pair(name, chann));
+}
+
+Client* create_client(int clientFd, char *ip)
+{
+    return (new Client(clientFd, ip));
+}
+
 bool	Server::client_exists(std::string nick)
 {
 	std::vector<Client*>::iterator it;
@@ -323,28 +340,6 @@ bool	Server::client_exists(std::string nick)
 		}
     }
 	return (false);
-}
-
-void	Server::new_channel(std::string name, Client *client, std::string password)
-{
-	channel *chann = create_channel(name, client, password);
-
-	channels.insert(std::make_pair(name, chann));
-}
-
-channel	*create_channel(std::string name, Client *client, std::string password)
-{
-	return (new channel(name, client, password));
-}
-
-std::string Server::get_time()
-{
-	return (make_time);
-}
-
-std::string Server::get_version()
-{
-	return (server_version);
 }
 
 void Server::clientDiscon( int clientFd )
@@ -393,5 +388,3 @@ Server::~Server()
 	channels.clear();
 	clients.clear();
 }
-
-//client server getters commands
