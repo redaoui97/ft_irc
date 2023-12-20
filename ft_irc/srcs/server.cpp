@@ -249,7 +249,8 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
         {
             mod_commands(args, client);
         }
-		else if (!(args.front()).compare("PING") || !(args.front()).compare("PONG")) {
+		else if (!(args.front()).compare("PING") || !(args.front()).compare("PONG"))
+		{
 			return ;
 		} 
 		else 
