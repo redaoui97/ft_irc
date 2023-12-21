@@ -276,10 +276,12 @@ void    mode_commands(std::vector<std::string> args, Client *client)
     int     pf = 0;
     std::string flags;
     std::vector<std::string>::iterator it;
+    channel                            *chann = NULL;
     
     //this gives a segfault
-    channel *chann = (client->GetServer())->find_channel(args.at(1));
-    if (!chann)
+    if (client)
+        chann = (client->GetServer())->find_channel(args.at(1));
+    if (chann)
         return ;
     if (!chann->is_mod(client->getNickname()))
     {
