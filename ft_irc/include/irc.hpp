@@ -176,6 +176,7 @@ void    kick_commands(std::vector<std::string> args, Client *client);
 void    invite_commands(std::vector<std::string> args, Client *client);
 void    topic_commands(std::vector<std::string> args, Client *client);
 void    mode_commands(std::vector<std::string> args, Client *client);
+void 	notice_cmd(Client *client, std::vector<std::string> args);
 
 //util functions
 std::string	to_String(int n);

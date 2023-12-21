@@ -408,10 +408,8 @@ void    mode_commands(std::vector<std::string> args, Client *client)
 //other commands
 void privmsg_cmd(Client *client, std::vector<std::string> args)
 {
-    std::cout << "privmsg exec: nmbr cmds: " << args.size() << std::endl;
     if (args.size() < 3)
     {
-        std::cout << (":" + host_name() + " 412 " + client->getNickname() + " :No text to send" + "\r\n") << std::endl;
         send_message((":" + host_name() + " 412 " + client->getNickname() + " :No text to send" + "\r\n"), client);
         return ;
     }
@@ -451,6 +449,47 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
         Client *receiver = (client->GetServer())->find_user_bynick(args.at(1));
         if (receiver)
             send_message((":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PRIVMSG " + args.at(1) + " " + trimPoints(args.at(2)) + "\r\n"), receiver);
+    }
+}
+
+void notice_cmd(Client *client, std::vector<std::string> args)
+{
+    if (args.size() < 3)
+    {
+        return ;
+    }
+    if ((args.at(1)).at(0) == '#')
+    {
+        if (!(client->GetServer())->channel_exists(args.at(1)))
+        {
+            return ;
+        }
+        channel *chann = (client->GetServer())->find_channel(args.at(1));
+        if (!chann)
+            return ;
+        if (chann->is_user_restricted())
+        {
+            return ;
+        }
+        if (chann->is_member(client->getNickname()))
+        {
+            broadcast_message(":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getIp() + ".ip NOTICE " + args.at(1) + " " + trimPoints(args.at(2)) + "\r\n", chann->all_clients(), client);
+            return ;
+        }
+        else
+        {
+            return ;
+        }
+    }
+    if (!(client->GetServer())->client_exists(args.at(1)))
+    {
+        return ;
+    }
+    else
+    {
+        Client *receiver = (client->GetServer())->find_user_bynick(args.at(1));
+        if (receiver)
+            send_message((":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " NOTICE " + args.at(1) + " " + trimPoints(args.at(2)) + "\r\n"), receiver);
     }
 }
 
