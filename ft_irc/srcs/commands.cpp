@@ -277,7 +277,10 @@ void    mode_commands(std::vector<std::string> args, Client *client)
     std::string flags;
     std::vector<std::string>::iterator it;
     
-    channel *chann = client->GetServer()->find_channel(args.at(1));
+    //this gives a segfault
+    channel *chann = (client->GetServer())->find_channel(args.at(1));
+    if (!chann)
+        return ;
     if (!chann->is_mod(client->getNickname()))
     {
         send_message((":" + host_name() + " 482 " + client->getNickname() + " " + args.at(2) + " :You're not channel operator" + "\r\n"), client);

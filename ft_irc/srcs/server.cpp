@@ -369,10 +369,7 @@ void	Server::delete_client(Client *client)
     for (it = channels.begin(); it != channels.end(); ++it)
 	{
 		if ((it->second)->is_member(client->getNickname()))
-		{
-			broadcast_message(" :" + client->getNickname() + " has been quitted\r\n", (it->second)->all_clients());
 			(it->second)->delete_client(client);
-		}
     }
 	clientDiscon(client->getClientFd());
 }
