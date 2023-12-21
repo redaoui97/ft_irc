@@ -58,13 +58,13 @@ void send_message(std::string msg, Client *client)
 	}
 }
 
-void broadcast_message(std::string msg, std::map<std::string, Client *> clients)
+void broadcast_message(std::string msg, std::map<std::string, Client *> clients, Client *except)
 {
 
     for (std::map<std::string, Client*>::iterator it = clients.begin(); it != clients.end(); ++it)
     {
         Client* currentClient = it->second;
-        if (currentClient)
+        if (currentClient && (currentClient != except))
             send_message(msg, currentClient);
     }
 }

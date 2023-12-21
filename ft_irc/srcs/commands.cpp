@@ -163,7 +163,7 @@ void    join_cmd(Client *client, std::vector<std::string> args)
     std::string clients_connected = client->getNickname();
     if (chann)
     {
-        broadcast_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getHostname() + " JOIN " + args.at(1) + "\r\n"), chann->all_clients());
+        broadcast_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getHostname() + " JOIN " + args.at(1) + "\r\n"), chann->all_clients(), client);
         statuss = (chann->require_pw() ? " @" : " = ");
         clients_connected = chann->print_all_client();
     }
@@ -427,7 +427,7 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
         }
         if (chann->is_member(client->getNickname()))
         {
-            broadcast_message(":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getIp() + ".ip PRIVMSG " + args.at(1) + " " + trimPoints(args.at(2)) + "\r\n", chann->all_clients());
+            broadcast_message(":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getIp() + ".ip PRIVMSG " + args.at(1) + " " + trimPoints(args.at(2)) + "\r\n", chann->all_clients(), client);
             return ;
         }
         else

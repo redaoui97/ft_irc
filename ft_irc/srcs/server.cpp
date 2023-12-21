@@ -381,7 +381,7 @@ void	Server::broadcast_channels(Client *client,  std::string msg)
     for (it = channels.begin(); it != channels.end(); ++it)
 	{
 		if ((it->second)->is_member(client->getNickname()))
-			broadcast_message(msg, (it->second)->all_clients());
+			broadcast_message(msg, (it->second)->all_clients(), NULL);
     }
 }
 

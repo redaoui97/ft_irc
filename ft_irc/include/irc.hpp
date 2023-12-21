@@ -183,7 +183,7 @@ std::string host_name();
 std::string get_date();
 void		clear_buffer(char *buffer, int size);
 void 		send_message(std::string msg, Client *client);
-void 		broadcast_message(std::string msg, std::map<std::string, Client *> clients);
+void 		broadcast_message(std::string msg, std::map<std::string, Client *> clients, Client *client);
 void    	send_err(Client *client,  err_replies rep, std::string additional_message);
 std::string trimSpaces(const std::string& str);
 std::string trimPoints(const std::string& str);
