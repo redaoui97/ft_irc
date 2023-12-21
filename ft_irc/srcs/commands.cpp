@@ -87,6 +87,11 @@ void pass_cmd(Client *client, std::vector<std::string> args, std::string passwor
         send_err(client, ERR_NEEDMOREPARAMS, ":Not enough parameters");
         return ;
     }
+    else if (args.at(1).compare(password))
+    {
+        send_err(client, ERR_PASSWDMISMATCH, ":Password incorrect");
+        return ;
+    }
     if (client->IsAuthenticated())
     {
         send_err(client, ERR_ALREADYREGISTERED, ":You may not reregister");
