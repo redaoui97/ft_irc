@@ -201,7 +201,7 @@ void    invite_commands(std::vector<std::string> args, Client *client)
 
     if (args.size() < 3)
     {
-        send_message(":" + host_name() + " " + args.at(0) + " 461 " + ":Not enough parameters" + "\r\n", client);
+        send_message(":" + host_name() +  " 461 " + args.at(0) + " :Not enough parameters" + "\r\n", client);
         return ;
     }
     if (!(client->GetServer())->channel_exists(args.at(2)))
@@ -209,16 +209,17 @@ void    invite_commands(std::vector<std::string> args, Client *client)
         send_message((":" + host_name() + " 403 " + client->getNickname() + " " + args.at(2) + " :No such channel" + "\r\n"), client);
         return ;
     }
-
     channel *chann = client->GetServer()->find_channel(args.at(2));
-    if (!(chann->is_mod(client->getNickname())))
-    {
-        send_message((":" + host_name() + " 482 " + client->getNickname() + " " + args.at(2) + " :You're not channel operator" + "\r\n"), client);
+    if (!chann)
         return ;
-    }
     if (!(chann->is_member(client->getNickname())))
     {
         send_message((":" + host_name() + " 442 " + client->getNickname() + " " + args.at(2) + " :You're not on that channel" + "\r\n"), client);
+        return ;
+    }
+    if (!(chann->is_mod(client->getNickname())))
+    {
+        send_message((":" + host_name() + " 482 " + client->getNickname() + " " + args.at(2) + " :You're not channel operator" + "\r\n"), client);
         return ;
     }
     if (chann->is_member(client->getNickname()))
@@ -406,7 +407,7 @@ void    mode_commands(std::vector<std::string> args, Client *client)
 }
 
 //other commands
-void privmsg_cmd(Client *client, std::vector<std::string> args)
+void    privmsg_cmd(Client *client, std::vector<std::string> args)
 {
     if (args.size() < 3)
     {
@@ -452,7 +453,7 @@ void privmsg_cmd(Client *client, std::vector<std::string> args)
     }
 }
 
-void notice_cmd(Client *client, std::vector<std::string> args)
+void    notice_cmd(Client *client, std::vector<std::string> args)
 {
     if (args.size() < 3)
     {
