@@ -42,11 +42,13 @@ bool    channel::is_mod(std::string nick)
 {
     for (std::map<std::string, Client*>::const_iterator it = m_moderators.begin(); it != m_moderators.end(); ++it)
     {
-        if (it->first == nick)
+        if (!(it->first).compare(nick))
         {
+            std::cout << nick << " is mod!" << std::endl;
             return true;
         }
     }
+    std::cout << nick << " is not a mod!" << std::endl;
     return false; 
 }
 

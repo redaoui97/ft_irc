@@ -251,17 +251,45 @@ void    kick_commands(std::vector<std::string> args, Client *client)
     }
     Client *clt = (client->GetServer())->find_user_bynick(args.at(2));
     if (!clt)
+    {
+        //split and loop here
+        send_message((":" + host_name() + " 401 " + client->getNickname() + " " + args.at(2) + " :No such nick/channel" + "\r\n"), client);
         return ;
+    }
     channel *chann = (client->GetServer())->find_channel(args.at(1));
     if (!chann)
+    {
+        send_message((":" + host_name() + " 403 " + client->getNickname() + " " + args.at(1) + " :No such channel" + "\r\n"), client);
         return ;
-    if (chann->is_mod(clt->getNickname()))
+    }
+    if (!chann->is_member(client->getNickname()))
+    {
+        send_message((":" + host_name() + " 442 " + client->getNickname() + " " + args.at(1) + " :You're not on that channel" + "\r\n"), client);
         return ;
-    send_message((":" +  host_name() + " 312 " + client->getNickname() + args.at(1) + " " + args.at(2) + " Kicked by operator" +"\r\n"), client);
+    }
+    if (!chann->is_member(clt->getNickname()))
+    {
+        //here
+        send_message((":" + host_name() + " 441 " + clt->getNickname() + " " + args.at(1) + " :They aren't on that channel" + "\r\n"), client);
+        return ;
+    }
+    if (!chann->is_mod(client->getNickname()))
+    {
+        send_message((":" + host_name() + " 482 " + client->getNickname() + " " + args.at(1) + " :You're not channel operator" + "\r\n"), client);
+        return ;
+    }
+
+    //we kick here
+    //we can take comment arg4
+    send_message((":" +  host_name() + " 312 " + client->getNickname() + " " + args.at(1) + " " + args.at(2) + " Kicked by operator" +"\r\n"), client);
     chann->delete_client(clt);
     if (chann->is_mod(clt->getNickname()))
         chann->remove_mod(clt);
     send_message((":" + host_name() + " 312 " + client->getNickname() + " " + args.at(1) + " " + clt->getNickname() + " :You were kicked by operator" + "\r\n"), clt);
+    // if ((chann->all_clients()).empty())
+    //     (client->GetServer().delete_channel(chann.get_name()))
+    //make function in server delete channel
+    //make function in channel get name
 }
 
 void    topic_commands(std::vector<std::string> args, Client *client)
@@ -508,3 +536,5 @@ void	quit_cmd(Client *client, std::vector<std::string> args)
         (client->GetServer())->broadcast_channels(client, (":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + " QUIT" + "\r\n"));
     (client->GetServer())->delete_client(client);
 }
+
+//ping command
