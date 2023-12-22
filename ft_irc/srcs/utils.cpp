@@ -108,33 +108,6 @@ void    send_err(Client *client,  err_replies rep, std::string additional_messag
     send_message(message, client);
 }
 
-static bool isAlphabetic(char c)
-{
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-}
-
-std::string trimSpaces(const std::string& str)
-{
-    // Find the first non-alphabetic character from the beginning
-    std::string::size_type start = 0;
-    while (start < str.length() && !isAlphabetic(str[start])) {
-        ++start;
-    }
-
-    // Check for an empty string or all non-alphabetic characters
-    if (start == str.length())
-        return "";
-
-    // Find the last non-alphabetic character from the end
-    std::string::size_type end = str.length() - 1;
-    while (end > 0 && !isAlphabetic(str[end])) {
-        --end;
-    }
-
-    // Extract the substring containing alphabetic characters
-    return str.substr(start, end - start + 1);
-}
-
 std::string trimPoints(const std::string& str)
 {
     std::string::size_type start = str.find_first_not_of(" \t\n\r");
@@ -142,4 +115,24 @@ std::string trimPoints(const std::string& str)
         return "";
     std::string::size_type end = str.find_last_not_of(" \t\n\r");
     return str.substr(start, end - start + 1);
+}
+
+std::vector<std::string> splitString(const std::string& input, char delimiter)
+{
+    std::vector<std::string> result;
+    std::string token;
+    
+    for (size_t i = 0; i < input.length(); ++i)
+    {
+        if (input[i] != delimiter)
+            token += input[i];
+        else if (!token.empty())
+        {
+            result.push_back(token);
+            token.clear();
+        }
+    }
+    if (!token.empty())
+        result.push_back(token);
+    return result;
 }

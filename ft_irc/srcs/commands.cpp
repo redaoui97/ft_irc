@@ -116,64 +116,70 @@ void    join_cmd(Client *client, std::vector<std::string> args)
         send_message((":" + host_name() + " 461 " + client->getNickname() + " JOIN :Not enough parameters" + "\r\n"), client);
         return ;
     }
-    if (!(client->GetServer()->channel_exists(args.at(1))))
+    std::vector<std::string> tokens = splitString(args.at(1), ',');
+
+    for (size_t i = 0; i < tokens.size(); ++i)
     {
-        if (args.size() > 2)
+        args.at(1) = tokens[i];
+        if (!(client->GetServer()->channel_exists(args.at(1))))
         {
-            (client->GetServer())->new_channel(args.at(1), client, args.at(2));
-        }
-        else if (args.size() == 2)
-        {
-            (client->GetServer())->new_channel(args.at(1), client, "");
-        }
-    }
-    else
-    {
-        channel *chann = (client->GetServer())->find_channel(args.at(1));
-        if (!chann)
-            return ;
-        if (chann->is_member(client->getNickname()))
-        {
-            send_message((":" + host_name() + " 443 " + client->getNickname() + " " + args.at(1) + " :is already on channel" + "\r\n"), client);
-            return ;
-        }
-        if (chann->require_invite())
-        {
-            if (!(chann->is_invited(client->getNickname())))
+            if (args.size() > 2)
             {
-                send_message((":" + host_name() + " 473 " + client->getNickname() + " " + args.at(1) + " :Cannot join channel" + "\r\n"),client);
-                return ;
+                (client->GetServer())->new_channel(args.at(1), client, args.at(2));
             }
-        }
-        if (chann->require_pw())
-        {
-            if (args.size() > 2 && chann->is_right_pw(args.at(2)))
+            else if (args.size() == 2)
             {
-                chann->add_client(client);
-            }
-            else
-            {
-                send_message((":" + host_name() + " 475 " + client->getNickname() + " " + args.at(1) + " :Cannot join channel" + "\r\n"),client);
-                return ;
+                (client->GetServer())->new_channel(args.at(1), client, "");
             }
         }
         else
         {
-            chann->add_client(client);
+            channel *chann = (client->GetServer())->find_channel(args.at(1));
+            if (!chann)
+                return ;
+            if (chann->is_member(client->getNickname()))
+            {
+                send_message((":" + host_name() + " 443 " + client->getNickname() + " " + args.at(1) + " :is already on channel" + "\r\n"), client);
+                return ;
+            }
+            if (chann->require_invite())
+            {
+                if (!(chann->is_invited(client->getNickname())))
+                {
+                    send_message((":" + host_name() + " 473 " + client->getNickname() + " " + args.at(1) + " :Cannot join channel" + "\r\n"),client);
+                    return ;
+                }
+            }
+            if (chann->require_pw())
+            {
+                if (args.size() > 2 && chann->is_right_pw(args.at(2)))
+                {
+                    chann->add_client(client);
+                }
+                else
+                {
+                    send_message((":" + host_name() + " 475 " + client->getNickname() + " " + args.at(1) + " :Cannot join channel" + "\r\n"),client);
+                    return ;
+                }
+            }
+            else
+            {
+                chann->add_client(client);
+            }
+            send_message((":" + host_name() + " 332 ", client->getNickname() + " " + args.at(1) + " :Topic: " + chann->get_topic() + "\r\n"), client);
         }
-        send_message((":" + host_name() + " 332 ", client->getNickname() + " " + args.at(1) + " :Topic: " + chann->get_topic() + "\r\n"), client);
+        channel *chann = client->GetServer()->find_channel(args.at(1));
+        std::string statuss = " = ";
+        std::string clients_connected = client->getNickname();
+        if (chann)
+        {
+            broadcast_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getHostname() + " JOIN " + args.at(1) + "\r\n"), chann->all_clients(), client);
+            statuss = (chann->require_pw() ? " @" : " = ");
+            clients_connected = chann->print_all_client();
+        }
+        send_message((":" + host_name() + " 353 " + client->getNickname() + statuss + args.at(1) + " :@" + clients_connected + "\r\n"), client);
+        send_message((":" + host_name() + " 366 " + client->getNickname() + " " + args.at(1) + " :End of /NAMES list" + "\r\n"), client);
     }
-    channel *chann = client->GetServer()->find_channel(args.at(1));
-    std::string statuss = " = ";
-    std::string clients_connected = client->getNickname();
-    if (chann)
-    {
-        broadcast_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getHostname() + " JOIN " + args.at(1) + "\r\n"), chann->all_clients(), client);
-        statuss = (chann->require_pw() ? " @" : " = ");
-        clients_connected = chann->print_all_client();
-    }
-    send_message((":" + host_name() + " 353 " + client->getNickname() + statuss + args.at(1) + " :@" + clients_connected + "\r\n"), client);
-    send_message((":" + host_name() + " 366 " + client->getNickname() + " " + args.at(1) + " :End of /NAMES list" + "\r\n"), client);
 }
 
 void    mod_commands(std::vector<std::string> args, Client *client)
