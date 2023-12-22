@@ -165,6 +165,11 @@ std::string channel::print_all_client()
     return result;
 }
 
+std::string    channel::get_name()
+{
+    return (m_name);
+}
+
 channel::~channel()
 {
     std::cout << "Channel deleted!" << std::endl;

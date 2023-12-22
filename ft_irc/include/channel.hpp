@@ -42,6 +42,7 @@ class channel
 		std::map<std::string, Client *> all_clients();
 		bool is_user_restricted();
 		std::string print_all_client();
+		std::string get_name();
 		~channel();
 		
 };

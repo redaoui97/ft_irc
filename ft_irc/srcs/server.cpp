@@ -398,3 +398,9 @@ Server::~Server()
 	channels.clear();
 	clients.clear();
 }
+
+void	Server::delete_channel(std::string channel_name)
+{
+	if (channels.find(channel_name) != channels.end())
+		channels.erase(channel_name);
+}

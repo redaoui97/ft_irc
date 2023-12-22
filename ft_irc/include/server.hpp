@@ -45,6 +45,8 @@ class Server
 		void    clientDiscon(int clientFd);
 		void	delete_client(Client *client);
 		void	broadcast_channels(Client *client,  std::string msg);
+		void	delete_channel(std::string channel_name);
+
 
 	class SocketInitException : public std::exception
 	{

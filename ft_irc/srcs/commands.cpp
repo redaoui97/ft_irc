@@ -281,15 +281,14 @@ void    kick_commands(std::vector<std::string> args, Client *client)
 
     //we kick here
     //we can take comment arg4
-    send_message((":" +  host_name() + " 312 " + client->getNickname() + " " + args.at(1) + " " + args.at(2) + " Kicked by operator" +"\r\n"), client);
+    broadcast_message((":" +  host_name() + " 312 " + client->getNickname() + " " + args.at(1) + " " + args.at(2) + " Kicked by operator" +"\r\n"), chann->all_clients(),client);
     chann->delete_client(clt);
     if (chann->is_mod(clt->getNickname()))
         chann->remove_mod(clt);
     send_message((":" + host_name() + " 312 " + client->getNickname() + " " + args.at(1) + " " + clt->getNickname() + " :You were kicked by operator" + "\r\n"), clt);
-    // if ((chann->all_clients()).empty())
-    //     (client->GetServer().delete_channel(chann.get_name()))
-    //make function in server delete channel
-    //make function in channel get name
+    if (((chann->all_clients())).size() == 0)
+        ((client->GetServer())->delete_channel(chann->get_name()));
+    
 }
 
 void    topic_commands(std::vector<std::string> args, Client *client)
