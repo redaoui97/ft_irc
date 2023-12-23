@@ -178,7 +178,7 @@ void    join_cmd(Client *client, std::vector<std::string> args)
         std::string clients_connected = client->getNickname();
         if (chann)
         {
-            broadcast_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getIp()+ ".ip JOIN :" + args.at(1) + "\r\n"), chann->all_clients(), client);
+            broadcast_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getIp()+ ".ip JOIN :" + args.at(1) + "\r\n"), chann->all_clients(), NULL);
             statuss = (chann->require_pw() ? " @" : " = ");
             clients_connected = chann->print_all_client();
         }
