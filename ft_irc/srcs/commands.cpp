@@ -533,14 +533,18 @@ void    privmsg_cmd(Client *client, std::vector<std::string> args)
         }
         if (!(client->GetServer())->client_exists(args.at(1)))
         {
+            std::cout << "here -- -----    " << args.at(1) <<  std::endl;
             send_message((":" + host_name() + " 401 " + client->getNickname() + " " + args.at(1) + " :No such nick/channel" + "\r\n"), client);
             continue ;
         }
         else
         {
             Client *receiver = (client->GetServer())->find_user_bynick(args.at(1));
+            std::string str = trimPoints(args.at(2));
+            if (str[0] == ':')
+                str = str.erase(0, 1);
             if (receiver)
-                send_message(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + ".ip PRIVMSG " + args.at(1) + " :" + trimPoints(args.at(2)) + "\r\n", receiver);
+                send_message(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + ".ip PRIVMSG " + args.at(1) + " :" + str + "\r\n", receiver);
         }
     }
 }

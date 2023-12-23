@@ -114,6 +114,9 @@ std::string trimPoints(const std::string& str)
     if (start == std::string::npos)
         return "";
     std::string::size_type end = str.find_last_not_of(" \t\n\r");
+    // if (str[0] == ':')
+    //     start++;
+    std::cout << str.substr(start, end - start + 1) << std::endl;
     return str.substr(start, end - start + 1);
 }
 
