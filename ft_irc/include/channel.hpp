@@ -43,6 +43,7 @@ class channel
 		bool is_user_restricted();
 		std::string print_all_client();
 		std::string get_name();
+		bool    is_topic_restricted();
 		~channel();
 		
 };

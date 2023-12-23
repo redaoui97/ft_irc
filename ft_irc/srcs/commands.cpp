@@ -291,9 +291,11 @@ void    kick_commands(std::vector<std::string> args, Client *client)
     
 }
 
+//handling trailing here
+//needs testing
 void    topic_commands(std::vector<std::string> args, Client *client)
 {
-    if (args.size() < 2)
+    if (args.size() < 2 || (args.size() == 2 && (args.at(1)) == ":"))
     {
         send_message(":" + host_name() +  " 461 " + client->getNickname() + " TOPIC :Not enough parameters" + "\r\n", client);
         return ;
@@ -306,7 +308,7 @@ void    topic_commands(std::vector<std::string> args, Client *client)
     channel *chann = client->GetServer()->find_channel(args.at(1));
     if (!chann)
         return ;
-    if (chann->is_member(client->getNickname()))
+    if (!chann->is_member(client->getNickname()))
     {
         send_message((":" + host_name() + " 442 " + client->getNickname() + " " + args.at(1) + " :You're not on that channel" + "\r\n"), client);
         return ;
@@ -317,7 +319,6 @@ void    topic_commands(std::vector<std::string> args, Client *client)
     {
         if ((chann->get_topic()).empty())
         {
-            //331
             send_message((":" + host_name() + " 331 " + client->getNickname() + " " + args.at(1) + " :No topic is set" + "\r\n"),client);
             return ;
         }
@@ -329,13 +330,16 @@ void    topic_commands(std::vector<std::string> args, Client *client)
     }
     else if (args.size() > 2)
     {
-        //     if (!chann->is_mod(client->getNickname()))
-        // {
-        //     send_message((":" + host_name() + " 482 " + client->getNickname() + " " + args.at(2) + " :You're not channel operator" + "\r\n"), client);
-        //     return ;
-        // }
+        if (chann->is_topic_restricted())
+        {
+            if (!chann->is_mod(client->getNickname()))
+            {
+                send_message((":" + host_name() + " 482 " + client->getNickname() + " " + args.at(2) + " :You're not channel operator" + "\r\n"), client);
+                return ;
+            }
+        }
         chann->change_topic(args.at(2));
-        send_message((":" + host_name() + " 332 " + client->getNickname() + " " + args.at(1) + " Topic:" + chann->get_topic() + "\r\n"),client);
+        broadcast_message((":" + host_name() + " 332 " + client->getNickname() + " " + args.at(1) + " " + chann->get_topic() + "\r\n"), chann->all_clients() ,client);
     }
 }
 

@@ -116,7 +116,10 @@ void channel::add_toinvite(Client *client)
 
 void channel::change_topic(std::string topic)
 {
-    m_topic = topic;
+    if (!topic.empty() && topic[0] == ':')
+        m_topic = topic.substr(1); 
+    else
+        m_topic = topic;
 }
 
 std::string channel::get_topic()
@@ -163,6 +166,11 @@ std::string channel::print_all_client()
         result.erase(result.size() - 1);
     }
     return result;
+}
+
+bool    channel::is_topic_restricted()
+{
+    return (m_topic_restricted);
 }
 
 std::string    channel::get_name()
