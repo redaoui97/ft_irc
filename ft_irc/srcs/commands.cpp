@@ -59,7 +59,7 @@ void user_cmd(Client *client, std::vector<std::string> args)
         return ;
     if (args.size() < 5)
     {
-        send_message(":" + host_name() + " " + args.at(0) + " 461 " + ":Not enough parameters" + "\r\n", client);
+        send_message(":" + host_name() + " " + args.at(0) + " 461 " + " USER :Not enough parameters" + "\r\n", client);
         return ;
     }
     if (client->IsAuthenticated())
@@ -354,10 +354,13 @@ void    mode_commands(std::vector<std::string> args, Client *client)
     std::vector<std::string>::iterator it;
     channel                            *chann = NULL;
     
-    //this gives a segfault
-    if (client)
-        chann = (client->GetServer())->find_channel(args.at(1));
-    if (chann)
+    if (args.size() < 2)
+    {
+       send_message((":" + host_name() + " 461 " + client->getNickname() + " MODE :Not enough parameters" + "\r\n"), client);
+        return ;
+    }
+    chann = (client->GetServer())->find_channel(args.at(1));
+    if (!chann)
         return ;
     if (!chann->is_mod(client->getNickname()))
     {
