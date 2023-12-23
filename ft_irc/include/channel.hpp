@@ -13,6 +13,7 @@ class channel
 		std::map<std::string, Client *> m_moderators;
 		std::map<std::string, Client *> m_members;
 		std::vector<std::string> m_invited_members;
+		int 		m_size;
 		bool		m_invite_only;
 		bool		m_password_restrict;
 		bool		m_topic_restricted;
@@ -43,7 +44,10 @@ class channel
 		bool is_user_restricted();
 		std::string print_all_client();
 		std::string get_name();
+		void		set_size(int new_size);
+		int			get_size();
 		bool    is_topic_restricted();
+		int 	get_max_size();
 		~channel();
 		
 };

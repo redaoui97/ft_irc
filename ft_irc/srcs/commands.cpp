@@ -163,6 +163,11 @@ void    join_cmd(Client *client, std::vector<std::string> args)
                     continue ;
                 }
             }
+            if (chann->get_size() == chann->get_max_size())
+            {
+                send_message((":" + host_name() + " 471 " + client->getNickname() + " " + args.at(1) + " :Cannot join channel (+l)" + "\r\n"),client);
+                return ;
+            }
             else
             {
                 chann->add_client(client);
@@ -354,14 +359,13 @@ void    mode_commands(std::vector<std::string> args, Client *client)
     char    k = ' ';
     char    o = ' ';
     char    l = ' ';
-    int     pf = 0;
     std::string flags;
     std::vector<std::string>::iterator it;
     channel                            *chann = NULL;
     
     if (args.size() < 3)
     {
-       send_message((":" + host_name() + " 461 " + client->getNickname() + " MODE :Not enough parameters" + "\r\n"), client);
+        send_message((":" + host_name() + " 461 " + client->getNickname() + " MODE :Not enough parameters" + "\r\n"), client);
         return ;
     }
     chann = (client->GetServer())->find_channel(args.at(1));
@@ -384,16 +388,7 @@ void    mode_commands(std::vector<std::string> args, Client *client)
                 if (currentChar == 't')
                     t = (*it)[0];
                 if (currentChar == 'k')
-                {
                     k = (*it)[0];
-                    if ((*it)[0] == '+')
-                    {
-                        if (o != '+')
-                            pf = 1;
-                        else
-                            pf = 2;
-                    }
-                }
                 if (currentChar == 'o')
                     o = (*it)[0];
                 if (currentChar == 'l')
@@ -439,15 +434,10 @@ void    mode_commands(std::vector<std::string> args, Client *client)
         if (k == '+')
         {
             chann->pw_restriction_status(true);
-            if (pf == 1 && args.size() >= 4)
+            if (args.size() >= 4)
             {
-                chann->set_newpw(args.at(4));
-                send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +k " + args.at(4) + "\r\n", client);
-            }
-            if (pf == 2 && args.size() >= 5)
-            {
-                chann->set_newpw(args.at(5));    
-                send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +k " + args.at(5) + "\r\n", client);
+                chann->set_newpw(args.at(3));
+                send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +k " + args.at(3) + "\r\n", client);
             }
         }
         else if (k == '-')
@@ -461,13 +451,9 @@ void    mode_commands(std::vector<std::string> args, Client *client)
     {
         Client *newc = NULL;
 
-        if(pf == 2 && args.size() >= 4)
+        if(args.size() >= 4)
         {
-            newc = (client->GetServer())->find_user_bynick(args.at(4));
-        }
-        if (pf == 1 && args.size() >= 5)
-        {
-            newc = (client->GetServer())->find_user_bynick(args.at(5));
+            newc = (client->GetServer())->find_user_bynick(args.at(3));
         }
         if (!newc)
             return ;
@@ -476,20 +462,16 @@ void    mode_commands(std::vector<std::string> args, Client *client)
             if (chann->is_mod(newc->getNickname()))
                 return ;
             chann->add_mod(newc);
-            if (pf == 2)
-                send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +o " + args.at(4) +"\r\n", client);
-            if (pf == 1)
-                send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +o " + args.at(5) +"\r\n", client);
+            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +o " + args.at(3) +"\r\n", client);
+            send_message(":" + host_name() + " 324 " + newc->getNickname() + " " + args.at(1) + " +o " + args.at(3) +"\r\n", newc);
         }
         else if (o == '-')
         {
             if (!(chann->is_mod(newc->getNickname())))
                 return ;
             chann->remove_mod(newc);
-            if (pf == 2)
-                send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -o " + args.at(4) +"\r\n", client);
-            if (pf == 1)
-                send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -o " + args.at(5) +"\r\n", client);
+            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -o " + args.at(3) +"\r\n", client);
+            send_message(":" + host_name() + " 324 " + newc->getNickname() + " " + args.at(1) + " -o " + args.at(3) +"\r\n", newc);
         }
     }
     //l============================
@@ -497,11 +479,13 @@ void    mode_commands(std::vector<std::string> args, Client *client)
     {
         if (l == '-')
         {
-
+            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -l " + args.at(3) + "\r\n", client);
+            chann->set_size(100);
         }
         else if (l == '+')
         {
-
+            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +l " + args.at(3) + "\r\n", client);
+            chann->set_size(std::atoi((args.at(3)).c_str()));
         }
     }
 }

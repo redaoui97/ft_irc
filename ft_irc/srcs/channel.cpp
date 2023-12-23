@@ -14,8 +14,24 @@ channel::channel(std::string name, Client *client, std::string password)
     m_invite_only = false;
     m_topic_restricted = true;
     m_user_restricted = false;
+    m_size = 100;
     add_mod(client);
     add_client(client);
+}
+
+void channel::set_size(int new_size)
+{
+    m_size = new_size;
+}
+
+int channel::get_size()
+{
+    return (m_members.size());
+}
+
+int channel::get_max_size()
+{
+    return (m_size);
 }
 
 void channel::set_topic_restriction(bool status)
