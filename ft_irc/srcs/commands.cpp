@@ -215,9 +215,15 @@ void    invite_commands(std::vector<std::string> args, Client *client)
         send_message((":" + host_name() + " 403 " + client->getNickname() + " " + args.at(2) + " :No such channel" + "\r\n"), client);
         return ;
     }
-    channel *chann = client->GetServer()->find_channel(args.at(2));
+    channel *chann = (client->GetServer())->find_channel(args.at(2));
     if (!chann)
         return ;
+    Client *client2 = (client->GetServer())->find_user_bynick(args.at(1));
+    if (!client2)
+    {
+        send_message((":" + host_name() + " 401 " + args.at(1) + " :No such nick/channel" + "\r\n"), client);
+        return ;
+    }
     if (!(chann->is_member(client->getNickname())))
     {
         send_message((":" + host_name() + " 442 " + client->getNickname() + " " + args.at(2) + " :You're not on that channel" + "\r\n"), client);
@@ -228,18 +234,14 @@ void    invite_commands(std::vector<std::string> args, Client *client)
         send_message((":" + host_name() + " 482 " + client->getNickname() + " " + args.at(2) + " :You're not channel operator" + "\r\n"), client);
         return ;
     }
-    if (chann->is_member(client->getNickname()))
+    if (chann->is_member(client2->getNickname()))
     {
         send_message((":" + host_name() + " 443 " + client->getNickname() + " " + args.at(2) + " :is already on channel" + "\r\n"), client);
         return ;
     }
-    send_message(":" + client->getNickname() + "!" + client->getUsername() + client->getHostname() + " INVITE " + args.at(1) + ":" + args.at(2) + "\r\n", client);
-    Client *client2 = (client->GetServer())->find_user_bynick(args.at(1));
-    if (client2)
-    {
-        send_message((":" + host_name() + " 341 " + args.at(1) + " " + args.at(2) + " :Invite to join channel" + "\r\n"), client);
-        chann->add_toinvite(client2);
-    }
+    send_message(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + ".ip INVITE " + args.at(1) + " :" + args.at(2) + "\r\n", client2);
+    send_message(":" + host_name() + " 345 " + client->getNickname() + " " + args.at(2) + " :" + args.at(1) + "\r\n", client2);
+    chann->add_toinvite(client2);
 }
 
 void    kick_commands(std::vector<std::string> args, Client *client)
@@ -356,7 +358,7 @@ void    mode_commands(std::vector<std::string> args, Client *client)
     std::vector<std::string>::iterator it;
     channel                            *chann = NULL;
     
-    if (args.size() < 2)
+    if (args.size() < 3)
     {
        send_message((":" + host_name() + " 461 " + client->getNickname() + " MODE :Not enough parameters" + "\r\n"), client);
         return ;
@@ -371,43 +373,51 @@ void    mode_commands(std::vector<std::string> args, Client *client)
     }
     for (it = args.begin(); it != args.end(); ++it)
     {
-        if ((*it)[0] != '+' && (*it)[0] != '-')
-            continue ;
-        for (size_t i = 0; i < (*it).length(); ++i)
+        if ((*it)[0] == '+' || (*it)[0] == '-')
         {
-            char currentChar = (*it)[i];
-            if (currentChar == 'i')
-                i = (*it)[0];
-            if (currentChar == 't')
-                t = (*it)[0];
-            if (currentChar == 'k')
+            for (size_t j = 1; j < (*it).length(); ++j)
             {
-                k = (*it)[0];
-                if ((*it)[0] == '+')
+                char currentChar = (*it)[j];
+                if (currentChar == 'i')
+                    i = (*it)[0];
+                if (currentChar == 't')
+                    t = (*it)[0];
+                if (currentChar == 'k')
                 {
-                    if (o != '+')
-                        pf = 1;
-                    else
-                        pf = 2;
+                    k = (*it)[0];
+                    if ((*it)[0] == '+')
+                    {
+                        if (o != '+')
+                            pf = 1;
+                        else
+                            pf = 2;
+                    }
                 }
+                if (currentChar == 'o')
+                    o = (*it)[0];
+                if (currentChar == 'l')
+                    l = (*it)[0];
             }
-            if (currentChar == 'o')
-                o = (*it)[0];
         }
     }
+    //i==================
     if (i != ' ')
     {
         if (i == '+')
         {
             chann->set_inv_status(true);
             send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +i" + "\r\n", client);
+            std::cout << "invite only now" << std::endl;
         }
         else if (i == '-')
         {
             chann->set_inv_status(false);
             send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -i" + "\r\n", client);
+            std::cout << "not invite only now" << std::endl;
+
         }
     }
+    //t===================
     if (t != ' ')
     {
         if (t == '+')
@@ -422,6 +432,7 @@ void    mode_commands(std::vector<std::string> args, Client *client)
             send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -t" + "\r\n", client);
         }
     }
+    //k======================
     if (k != ' ')
     {
         if (k == '+')
@@ -432,7 +443,7 @@ void    mode_commands(std::vector<std::string> args, Client *client)
                 chann->set_newpw(args.at(4));
                 send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +k " + args.at(4) + "\r\n", client);
             }
-            else if (pf == 2 && args.size() >= 5)
+            if (pf == 2 && args.size() >= 5)
             {
                 chann->set_newpw(args.at(5));    
                 send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +k " + args.at(5) + "\r\n", client);
@@ -444,6 +455,7 @@ void    mode_commands(std::vector<std::string> args, Client *client)
             send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -k" + "\r\n", client);
         }
     }
+    //o=====================
     if (o != ' ')
     {
         Client *newc = NULL;
@@ -479,15 +491,16 @@ void    mode_commands(std::vector<std::string> args, Client *client)
                 send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -o " + args.at(5) +"\r\n", client);
         }
     }
-    if (k != ' ')
+    //l============================
+    if (l != ' ')
     {
-        if (k == '-')
+        if (l == '-')
         {
 
         }
-        else if (k == '+')
+        else if (l == '+')
         {
-            
+
         }
     }
 }
@@ -540,7 +553,7 @@ void    privmsg_cmd(Client *client, std::vector<std::string> args)
         {
             Client *receiver = (client->GetServer())->find_user_bynick(args.at(1));
             if (receiver)
-                send_message((":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getHostname() + " PRIVMSG " + args.at(1) + " " + trimPoints(args.at(2)) + "\r\n"), receiver);
+                send_message(":" + client->getNickname() + "!" + client->getUsername() + "@" + client->getIp() + ".ip PRIVMSG " + args.at(1) + " :" + trimPoints(args.at(2)) + "\r\n", receiver);
         }
     }
 }
