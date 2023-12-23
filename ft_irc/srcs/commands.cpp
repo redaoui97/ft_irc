@@ -343,12 +343,14 @@ void    topic_commands(std::vector<std::string> args, Client *client)
     }
 }
 
+//still haven't included l flag
 void    mode_commands(std::vector<std::string> args, Client *client)
 {
     char    i = ' ';
     char    t = ' ';
     char    k = ' ';
     char    o = ' ';
+    char    l = ' ';
     int     pf = 0;
     std::string flags;
     std::vector<std::string>::iterator it;
@@ -475,6 +477,17 @@ void    mode_commands(std::vector<std::string> args, Client *client)
                 send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -o " + args.at(4) +"\r\n", client);
             if (pf == 1)
                 send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -o " + args.at(5) +"\r\n", client);
+        }
+    }
+    if (k != ' ')
+    {
+        if (k == '-')
+        {
+
+        }
+        else if (k == '+')
+        {
+            
         }
     }
 }
