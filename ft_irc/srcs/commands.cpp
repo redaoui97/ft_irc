@@ -167,12 +167,12 @@ void    join_cmd(Client *client, std::vector<std::string> args)
                 chann->add_client(client);
             }
         }
-        channel *chann = client->GetServer()->find_channel(args.at(1));
+        channel *chann = (client->GetServer())->find_channel(args.at(1));
         std::string statuss = " = ";
         std::string clients_connected = client->getNickname();
         if (chann)
         {
-            broadcast_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getHostname() + " JOIN " + args.at(1) + "\r\n"), chann->all_clients(), client);
+            broadcast_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getIp()+ ".ip JOIN :" + args.at(1) + "\r\n"), chann->all_clients(), client);
             statuss = (chann->require_pw() ? " @" : " = ");
             clients_connected = chann->print_all_client();
         }
@@ -473,7 +473,6 @@ void    mode_commands(std::vector<std::string> args, Client *client)
 }
 
 //other commands
-//Send to multiple uers
 void    privmsg_cmd(Client *client, std::vector<std::string> args)
 {
     if (args.size() < 3)
