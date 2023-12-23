@@ -2,9 +2,6 @@
 # define SERVER_HPP
 
 #include "../include/irc.hpp"
-#ifndef MAXCLIENTS
-# define MAXCLIENTS 100
-#endif
 
 //additional functions 
 Client* create_client(int clientFd, char *ip);

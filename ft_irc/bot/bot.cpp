@@ -40,6 +40,16 @@ void Bot::connectServ() {
     std::cout << "Connecting to server" << std::endl;
     std::string msg = "PASS " + this->password + "\r\n";
     send(this->clientSocket, msg.c_str(), msg.length(), 0);
+    // check if password is correct
+    char buffer[20];
+    int n = recv(this->clientSocket, buffer, 20,0 );
+    buffer[n] = '\0';
+    std::string response(buffer);
+    if (response != "correct password\r\n") {
+        std::cout << "Error: incorrect password" << std::endl;
+        exit(1);
+    }
+    //
     msg = "NICK " + this->nickname + "\r\n";
     send(this->clientSocket, msg.c_str(), msg.length(), 0);
     msg = "USER " + this->username + " " + this->hostname + " BserverName :BrealName\r\n";

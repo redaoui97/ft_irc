@@ -103,6 +103,7 @@ void pass_cmd(Client *client, std::vector<std::string> args, std::string passwor
             send_err(client, ERR_PASSWDMISMATCH, ":Password incorrect");
         else
         {
+            send_message("correct password\r\n", client);
             client->SetRightPassword(true);
         }
     }

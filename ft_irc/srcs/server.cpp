@@ -48,7 +48,7 @@ bool	Server::initializeServer(int port)
 		return false;
 	}
 
-	if(listen(serverFd, 10) == -1) {
+	if(listen(serverFd, SOMAXCONN) == -1) {
 		close(serverFd);
 		throw SocketInitException("failed to set-up listener!");
 		return 1;
@@ -65,7 +65,6 @@ void	Server::startListening() {
 
 	int filesnum;
 
-	clientSockets.reserve(MAXCLIENTS);
 	clientSockets.push_back(serverSocket);
 	while(1)
 	{
@@ -107,7 +106,7 @@ void Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
     clientFd = accept(serverFd, (sockaddr*)&clientAddr, &clientAddrlen);
     if (clientFd == -1) {
         normal_error("Error accepting client connection");
-    } else if (clientSockets.size() < (size_t)MAXCLIENTS) {
+    } else {
         struct pollfd clientSocket;
         clientSocket.fd = clientFd;
         clientSocket.events = POLLIN;
@@ -121,9 +120,6 @@ void Server::newClientConnections(std::vector<struct pollfd>& clientSockets)
 		this->buffers.insert(std::make_pair(clientFd, ""));
         std::cout << "New Client added. IP: " << str << std::endl;
 
-    } else {
-        normal_error("Reject Connection: Error max Clients.");
-        close(clientFd);
     }
 }
 
