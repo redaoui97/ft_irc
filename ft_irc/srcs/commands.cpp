@@ -290,10 +290,12 @@ void    kick_commands(std::vector<std::string> args, Client *client)
     if (chann->is_mod(clt->getNickname()))
         chann->remove_mod(clt);
     if (args.size() < 4)
-        broadcast_message((":" +  host_name() + " " + client->getNickname() + " " + args.at(1) + " " + args.at(2) + " Kicked by operator" +"\r\n"), chann->all_clients(),client);
+        broadcast_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getHostname() + " KICK " + chann->get_name() + " " + args.at(2) + " :" + client->getNickname() + "\r\n"), chann->all_clients(), NULL);
     else
-        broadcast_message((":" +  host_name() + " " + client->getNickname() + " " + args.at(1) + " " + args.at(2) + " Kicked by operator " + args.at(3) + "\r\n"), chann->all_clients(),client);
-    send_message((":" + host_name() + " 312 " + client->getNickname() + " " + args.at(1) + " " + clt->getNickname() + " :You were kicked by operator" + "\r\n"), clt);
+        broadcast_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getHostname() + " KICK " + chann->get_name() + " " + args.at(2) + " :" + client->getNickname() + "\r\n"), chann->all_clients(), NULL);
+        // broadcast_message((":" +  host_name() + " " + client->getNickname() + " " + args.at(1) + " " + args.at(2) + " Kicked by operator " + args.at(3) + "\r\n"), chann->all_clients(),client);
+    send_message((":" + client->getNickname() + "!~" + client->getUsername() + "@" + client->getHostname() + " KICK " + chann->get_name() + " " + args.at(2) + " :" + client->getNickname() + "\r\n"), clt);
+    // send_message((":" + host_name() + " 312 " + client->getNickname() + " " + args.at(1) + " " + clt->getNickname() + " :You were kicked by operator" + "\r\n"), clt);
     if (((chann->all_clients())).size() == 0)
         ((client->GetServer())->delete_channel(chann->get_name()));
     
@@ -332,7 +334,7 @@ void    topic_commands(std::vector<std::string> args, Client *client)
         }
         else
         {
-            send_message((":" + host_name() + " 332 " + client->getNickname() + " " + args.at(1) + " Topic:" + chann->get_topic() + "\r\n"),client);
+            send_message((":" + host_name() + " 332 " + client->getNickname() + " " + args.at(1) + " " + chann->get_topic() + "\r\n"),client);
             return ;
         }
     }
@@ -453,7 +455,7 @@ void    mode_commands(std::vector<std::string> args, Client *client)
 
         if(args.size() >= 4)
         {
-            newc = (client->GetServer())->find_user_bynick(args.at(3));
+            newc = (client->GetServer())->find_user_bynick(args.at(2));
         }
         if (!newc)
             return ;
@@ -462,16 +464,16 @@ void    mode_commands(std::vector<std::string> args, Client *client)
             if (chann->is_mod(newc->getNickname()))
                 return ;
             chann->add_mod(newc);
-            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +o " + args.at(3) +"\r\n", client);
-            send_message(":" + host_name() + " 324 " + newc->getNickname() + " " + args.at(1) + " +o " + args.at(3) +"\r\n", newc);
+            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " +o " +"\r\n", client);
+            send_message(":" + host_name() + " 324 " + newc->getNickname() + " " + args.at(1) + " +o " + "\r\n", newc);
         }
         else if (o == '-')
         {
             if (!(chann->is_mod(newc->getNickname())))
                 return ;
             chann->remove_mod(newc);
-            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -o " + args.at(3) +"\r\n", client);
-            send_message(":" + host_name() + " 324 " + newc->getNickname() + " " + args.at(1) + " -o " + args.at(3) +"\r\n", newc);
+            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -o " + "\r\n", client);
+            send_message(":" + host_name() + " 324 " + newc->getNickname() + " " + args.at(1) + " -o " + "\r\n", newc);
         }
     }
     //l============================
@@ -594,3 +596,6 @@ void	quit_cmd(Client *client, std::vector<std::string> args)
 }
 
 //ping command
+
+
+
