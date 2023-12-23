@@ -235,7 +235,7 @@ void  Server::execute_commands(std::vector<std::string>args, Client* client, std
         }
 		else if (!(args.front()).compare("NOTICE"))
         {
-            privmsg_cmd(client, args);
+            notice_cmd(client, args);
         }
         else if (!(args.front()).compare("KICK") || !(args.front()).compare("INVITE") || !(args.front()).compare("TOPIC") || !(args.front()).compare("MODE"))
         {

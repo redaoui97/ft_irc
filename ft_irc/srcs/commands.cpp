@@ -481,7 +481,7 @@ void    mode_commands(std::vector<std::string> args, Client *client)
     {
         if (l == '-')
         {
-            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -l " + args.at(3) + "\r\n", client);
+            send_message(":" + host_name() + " 324 " + client->getNickname() + " " + args.at(1) + " -l"+ "\r\n", client);
             chann->set_size(100);
         }
         else if (l == '+')
